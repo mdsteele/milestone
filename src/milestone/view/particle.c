@@ -17,41 +17,26 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_STATE_TARGET_H_
-#define MILESTONE_STATE_TARGET_H_
+#include "milestone/view/particle.h"
 
-#include "milestone/util/color.h"
-#include "milestone/util/vector.h"
+#include <GL/gl.h>
 
-/*===========================================================================*/
-
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_BONUS,
-  AZ_TARG_NORMAL,
-  AZ_TARG_REBEL,
-} az_target_kind_t;
-
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  az_vector_t velocity;
-  int wave;
-  bool is_invisible; // true if target should be invisible
-  double invisibility; // 0.0 (visible) to 1.0 (visible)
-} az_target_t;
+#include "milestone/constants.h"
+#include "milestone/state/play.h"
+#include "milestone/util/misc.h"
 
 /*===========================================================================*/
 
-void az_init_target(az_target_t *target, az_target_kind_t kind, int wave,
-                    az_vector_t position);
-
-void az_init_target_at_random_position(
-    az_target_t *target, az_target_kind_t kind, int wave);
-
-az_color_t az_target_color(const az_target_t *target);
+void az_draw_particles(const az_play_state_t *state) {
+  glBegin(GL_POINTS); {
+    AZ_ARRAY_LOOP(particle, state->particles) {
+      if (particle->kind == AZ_PAR_NOTHING) continue;
+      const az_color_t color = particle->color;
+      glColor4ub(color.r, color.g, color.b,
+                 color.a * (1.0 - particle->age / particle->lifetime));
+      glVertex2d(particle->position.x, particle->position.y);
+    }
+  } glEnd();
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_STATE_TARGET_H_

@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "milestone/constants.h"
+#include "milestone/state/particle.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/vector.h"
 
@@ -50,6 +51,17 @@ void az_add_baddie(az_play_state_t *state, az_baddie_kind_t kind,
       baddie->kind = kind;
       baddie->position = position;
       baddie->cooldown = 1.0;
+      return;
+    }
+  }
+}
+
+void az_add_particle(az_play_state_t *state, az_color_t color,
+                     az_vector_t position, az_vector_t velocity,
+                     double lifetime) {
+  AZ_ARRAY_LOOP(particle, state->particles) {
+    if (particle->kind == AZ_PAR_NOTHING) {
+      az_init_particle(particle, color, position, velocity, lifetime);
       return;
     }
   }

@@ -25,9 +25,12 @@
 
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
+#include "milestone/state/target.h"
 #include "milestone/gui/event.h"
+#include "milestone/util/color.h"
 #include "milestone/util/misc.h"
 #include "milestone/view/baddie.h"
+#include "milestone/view/particle.h"
 #include "milestone/view/projectile.h"
 #include "milestone/view/string.h"
 
@@ -35,18 +38,46 @@
 
 #define STATUS_HEIGHT 20
 
-static void set_color_for_wave(int wave, GLfloat alpha) {
-  switch (wave % 6) {
-    case 0: glColor4f(1,    0,    1,   alpha); break;
-    case 1: glColor4f(1,    1,    0,   alpha); break;
-    case 2: glColor4f(0,    0.8,  0.8, alpha); break;
-    case 4: glColor4f(1,    0,    0,   alpha); break;
-    case 5: glColor4f(0.25, 0.25, 1,   alpha); break;
-    case 3: glColor4f(0,    0.75, 0,   alpha); break;
+static void set_color_for_wave(int wave, double alpha) {
+  const az_color_t color = az_color_for_wave(wave);
+  glColor4ub(color.r, color.g, color.b, alpha * color.a);
+}
+
+static void draw_avatar(const az_play_state_t *state) {
+  glPushMatrix(); {
+    glTranslated(state->avatar_position.x, state->avatar_position.y, 0);
+    glColor3f(1, 0, 1);
+    glBegin(GL_LINE_LOOP); {
+      glVertex2f(10, 0); glVertex2f(0, 10);
+      glVertex2f(-10, 0); glVertex2f(0, -10);
+    } glEnd();
+  } glPopMatrix();
+}
+
+static void draw_targets(const az_play_state_t *state) {
+  AZ_ARRAY_LOOP(target, state->targets) {
+    if (target->kind == AZ_TARG_NOTHING) continue;
+    if (target->invisibility >= 1.0) continue;
+    glPushMatrix(); {
+      glTranslated(target->position.x, target->position.y, 0);
+      const az_color_t color = az_target_color(target);
+      glColor4ub(color.r, color.g, color.b,
+                 (1.0 - target->invisibility) * color.a);
+      glBegin(GL_LINE_LOOP); {
+        glVertex2f(8, 8); glVertex2f(-8, 8);
+        glVertex2f(-8, -8); glVertex2f(8, -8);
+      } glEnd();
+    } glPopMatrix();
   }
 }
 
 void az_draw_play_screen(const az_play_state_t *state) {
+  draw_targets(state);
+  az_draw_baddies(state);
+  az_draw_projectiles(state);
+  draw_avatar(state);
+  az_draw_particles(state);
+
   // Score bar:
   glColor3f(1, 1, 1);
   az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 3,
@@ -58,7 +89,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
     glColor3f(1, 1, 1);
   } else {
-    set_color_for_wave(state->current_wave, 1.0f);
+    set_color_for_wave(state->current_wave, 1);
   }
   az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
   glBegin(GL_TRIANGLE_STRIP); {
@@ -72,7 +103,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   } glEnd();
 
   // Border:
-  set_color_for_wave(state->current_wave + (state->bonus_round ? 1 : 0), 1.0f);
+  set_color_for_wave(state->current_wave + (state->bonus_round ? 1 : 0), 1);
   glBegin(GL_LINE_LOOP); {
     const GLfloat left = 1.5f;
     const GLfloat right = AZ_SCREEN_WIDTH - 1.5f;
@@ -81,35 +112,6 @@ void az_draw_play_screen(const az_play_state_t *state) {
     glVertex2f(left, top); glVertex2f(right, top);
     glVertex2f(right, bottom); glVertex2f(left, bottom);
   } glEnd();
-
-  // Targets:
-  AZ_ARRAY_LOOP(target, state->targets) {
-    if (target->kind == AZ_TARG_NOTHING) continue;
-    if (target->invisibility >= 1.0) continue;
-    glPushMatrix(); {
-      glTranslated(target->position.x, target->position.y, 0);
-      if (target->kind == AZ_TARG_BONUS) {
-        glColor4f(1, 1, 1, 1.0 - target->invisibility);
-      } else set_color_for_wave(target->wave, 1.0 - target->invisibility);
-      glBegin(GL_LINE_LOOP); {
-        glVertex2f(8, 8); glVertex2f(-8, 8);
-        glVertex2f(-8, -8); glVertex2f(8, -8);
-      } glEnd();
-    } glPopMatrix();
-  }
-
-  az_draw_baddies(state);
-  az_draw_projectiles(state);
-
-  // Avatar:
-  glPushMatrix(); {
-    glTranslated(state->avatar_position.x, state->avatar_position.y, 0);
-    glColor3f(1, 0, 1);
-    glBegin(GL_LINE_LOOP); {
-      glVertex2f(10, 0); glVertex2f(0, 10);
-      glVertex2f(-10, 0); glVertex2f(0, -10);
-    } glEnd();
-  } glPopMatrix();
 }
 
 /*===========================================================================*/

@@ -26,6 +26,7 @@
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
 #include "milestone/tick/baddie.h"
+#include "milestone/tick/particle.h"
 #include "milestone/tick/projectile.h"
 #include "milestone/tick/target.h"
 #include "milestone/util/misc.h"
@@ -104,6 +105,18 @@ static void tick_avatar(az_play_state_t *state, double time) {
         value *= sqrt(target->wave);
         elasticity = 2.0;
       }
+
+      const az_color_t color = az_target_color(target);
+      for (int i = 0; i < 360; i += 5) {
+        const az_vector_t unit = az_vpolar(1.0, az_random(0, AZ_TWO_PI));
+        az_add_particle(state, color,
+                        az_vadd(target->position,
+                                az_vmul(unit, AZ_TARGET_RADIUS)),
+                        az_vmul(unit, elasticity * az_random(20, 150)),
+                        az_random(2.0, 5.0));
+      }
+
+
       const az_vector_t delta =
         az_vsub(state->avatar_position, target->position);
       target->kind = AZ_TARG_NOTHING;
@@ -119,6 +132,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
 
 void az_tick_play_state(az_play_state_t *state, double time) {
   ++state->clock;
+  az_tick_particles(state, time);
   spawn_baddies(state, time);
   az_tick_projectiles(state, time);
   az_tick_baddies(state, time);

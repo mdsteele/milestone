@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "milestone/state/particle.h"
 #include "milestone/state/target.h"
 #include "milestone/util/clock.h"
 #include "milestone/util/vector.h"
@@ -31,6 +32,7 @@
 /*===========================================================================*/
 
 #define AZ_MAX_NUM_BADDIES 100
+#define AZ_MAX_NUM_PARTICLES 500
 #define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_MAX_NUM_TARGETS 200
 #define AZ_SECONDS_PER_WAVE 20.0
@@ -86,6 +88,7 @@ typedef struct {
   az_vector_t avatar_velocity;
   // Objects:
   az_baddie_t baddies[AZ_MAX_NUM_BADDIES];
+  az_particle_t particles[AZ_MAX_NUM_PARTICLES];
   az_projectile_t projectiles[AZ_MAX_NUM_PROJECTILES];
   az_target_t targets[AZ_MAX_NUM_TARGETS];
 } az_play_state_t;
@@ -98,6 +101,10 @@ int az_num_waves_at_once_for_wave(int wave);
 
 void az_add_baddie(az_play_state_t *state, az_baddie_kind_t kind,
                    az_vector_t position);
+
+void az_add_particle(az_play_state_t *state, az_color_t color,
+                     az_vector_t position, az_vector_t velocity,
+                     double lifetime);
 
 void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
                        az_vector_t position, az_vector_t velocity);

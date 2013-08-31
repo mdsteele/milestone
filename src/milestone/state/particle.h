@@ -18,8 +18,8 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_STATE_TARGET_H_
-#define MILESTONE_STATE_TARGET_H_
+#ifndef MILESTONE_STATE_PARTICLE_H_
+#define MILESTONE_STATE_PARTICLE_H_
 
 #include "milestone/util/color.h"
 #include "milestone/util/vector.h"
@@ -27,31 +27,24 @@
 /*===========================================================================*/
 
 typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_BONUS,
-  AZ_TARG_NORMAL,
-  AZ_TARG_REBEL,
-} az_target_kind_t;
+  AZ_PAR_NOTHING = 0,
+  AZ_PAR_NORMAL,
+} az_particle_kind_t;
 
 typedef struct {
-  az_target_kind_t kind;
+  az_particle_kind_t kind;
+  az_color_t color;
   az_vector_t position;
   az_vector_t velocity;
-  int wave;
-  bool is_invisible; // true if target should be invisible
-  double invisibility; // 0.0 (visible) to 1.0 (visible)
-} az_target_t;
+  double age, lifetime;
+} az_particle_t;
 
 /*===========================================================================*/
 
-void az_init_target(az_target_t *target, az_target_kind_t kind, int wave,
-                    az_vector_t position);
-
-void az_init_target_at_random_position(
-    az_target_t *target, az_target_kind_t kind, int wave);
-
-az_color_t az_target_color(const az_target_t *target);
+void az_init_particle(az_particle_t *particle, az_color_t color,
+                      az_vector_t position, az_vector_t velocity,
+                      double lifetime);
 
 /*===========================================================================*/
 
-#endif // MILESTONE_STATE_TARGET_H_
+#endif // MILESTONE_STATE_PARTICLE_H_

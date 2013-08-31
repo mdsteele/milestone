@@ -19,9 +19,11 @@
 
 #include "milestone/state/target.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "milestone/constants.h"
+#include "milestone/util/color.h"
 #include "milestone/util/random.h"
 
 /*===========================================================================*/
@@ -43,6 +45,12 @@ void az_init_target_at_random_position(
               AZ_BOARD_MAX_Y - AZ_TARGET_RADIUS)
   };
   az_init_target(target, kind, wave, position);
+}
+
+az_color_t az_target_color(const az_target_t *target) {
+  assert(target->kind != AZ_TARG_NOTHING);
+  if (target->kind == AZ_TARG_BONUS) return (az_color_t){255, 255, 255, 255};
+  return az_color_for_wave(target->wave);
 }
 
 /*===========================================================================*/
