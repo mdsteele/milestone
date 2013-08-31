@@ -20,9 +20,11 @@
 #include "milestone/view/baddie.h"
 
 #include <assert.h>
+#include <math.h>
 
 #include <GL/gl.h>
 
+#include "milestone/constants.h"
 #include "milestone/state/play.h"
 #include "milestone/util/clock.h"
 #include "milestone/util/misc.h"
@@ -40,6 +42,15 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
         glVertex2f(-10, 3); glVertex2f(-10, -3);
         glVertex2f(-3, -10); glVertex2f(3, -10);
         glVertex2f(10, -3); glVertex2f(10, 3);
+      } glEnd();
+      break;
+    case AZ_BAD_GUARD:
+      glColor3f(0.25, 0.5, 1);
+      glBegin(GL_LINE_LOOP); {
+        for (int i = 0; i < 360; i += 30) {
+          glVertex2d(AZ_BADDIE_RADIUS * cos(AZ_DEG2RAD(i)),
+                     AZ_BADDIE_RADIUS * sin(AZ_DEG2RAD(i)));
+        }
       } glEnd();
       break;
   }

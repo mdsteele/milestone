@@ -43,6 +43,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
   switch (baddie->kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_TANK: {
+      // Seek towards the avatar, but away from other nearby baddies.
       const az_vector_t delta =
         az_vsub(state->avatar_position, baddie->position);
       baddie->velocity = az_vwithlen(delta, 70.0);
@@ -54,10 +55,46 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
               az_vsub(baddie->position, other->position), 20.0));
         }
       }
+      // Fire at the avatar.
       if (baddie->cooldown <= 0.0) {
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(delta, 600.0));
         baddie->cooldown = 2.0;
+      }
+    } break;
+    case AZ_BAD_GUARD: {
+      // Seek to the closest target that doesn't have another baddie near it.
+      double best_dist = INFINITY;
+      az_vector_t goal = baddie->position;
+      AZ_ARRAY_LOOP(target, state->targets) {
+        if (target->kind == AZ_TARG_NOTHING) continue;
+        bool alone = true;
+        AZ_ARRAY_LOOP(other, state->baddies) {
+          if (other->kind == AZ_BAD_NOTHING) continue;
+          if (other == baddie) continue;
+          if (az_vwithin(other->position, target->position, 100.0)) {
+            alone = false;
+            break;
+          }
+        }
+        if (alone) {
+          const double dist = az_vdist(target->position, baddie->position);
+          if (dist < best_dist) {
+            best_dist = dist;
+            goal = target->position;
+          }
+        }
+      }
+      const az_vector_t goal_delta = az_vsub(goal, baddie->position);
+      baddie->velocity =
+        az_vwithlen(goal_delta, fmin(100.0, 2.0 * az_vnorm(goal_delta)));
+      // Fire at the avatar, firing faster when the avatar is nearer.
+      if (baddie->cooldown <= 0.0) {
+        const az_vector_t avatar_delta =
+          az_vsub(state->avatar_position, baddie->position);
+        az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
+                          az_vwithlen(avatar_delta, 400.0));
+        baddie->cooldown = 0.5 + fmin(1.5, az_vnorm(avatar_delta) / 400.0);
       }
     } break;
   }

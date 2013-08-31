@@ -37,6 +37,7 @@
 typedef enum {
   AZ_BAD_NOTHING = 0,
   AZ_BAD_TANK,
+  AZ_BAD_GUARD,
 } az_baddie_kind_t;
 
 typedef struct {

@@ -35,10 +35,10 @@
 #define AZ_BOARD_CENTER_Y (AZ_SCREEN_HEIGHT / 2)
 #define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
 
-// Hit radius of the player's avatar, in pixels:
-#define AZ_AVATAR_RADIUS 20
-// Hit radius of baddies, in pixels:
-#define AZ_BADDIE_RADIUS 20
+// Hit radii of various objects:
+#define AZ_AVATAR_RADIUS 10
+#define AZ_BADDIE_RADIUS 15
+#define AZ_TARGET_RADIUS 10
 
 #define AZ_BOMB_EXPAND_TIME 0.5
 #define AZ_BOMB_MAX_RADIUS 350

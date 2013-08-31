@@ -59,30 +59,42 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   --state->num_baddies_to_spawn;
 
   // TODO: pick a baddie kind based on wave
-  const az_baddie_kind_t kind = AZ_BAD_TANK;
+  const az_baddie_kind_t kind = AZ_BAD_GUARD;
 
   az_add_baddie(state, kind, pick_spawn_point(state));
 }
 
 /*===========================================================================*/
 
-void az_tick_play_state(az_play_state_t *state, double time) {
-  ++state->clock;
-  spawn_baddies(state, time);
-  az_tick_projectiles(state, time);
-  az_tick_baddies(state, time);
+static void tick_avatar(az_play_state_t *state, double time) {
 
   // Move avatar:
   state->avatar_velocity = az_vcaplen(state->avatar_velocity, 500.0);
   az_vpluseq(&state->avatar_position,
              az_vmul(state->avatar_velocity, time));
+
+  // Bounce off of baddies:
+  AZ_ARRAY_LOOP(baddie, state->baddies) {
+    if (baddie->kind == AZ_BAD_NOTHING) continue;
+    if (az_vwithin(baddie->position, state->avatar_position,
+                   AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS)) {
+      const az_vector_t delta =
+        az_vsub(state->avatar_position, baddie->position);
+      az_vpluseq(&state->avatar_velocity,
+                 az_vmul(az_vproj(state->avatar_velocity, delta), -2.0));
+      state->avatar_position =
+        az_vadd(baddie->position,
+                az_vwithlen(delta, AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS));
+    }
+  }
+
   az_bounce_off_edges(&state->avatar_position, &state->avatar_velocity);
 
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (az_vwithin(target->position, state->avatar_position,
-                   AZ_AVATAR_RADIUS)) {
+                   AZ_AVATAR_RADIUS + AZ_TARGET_RADIUS)) {
       int value = 250;
       double elasticity = 0.75;
       if (target->kind == AZ_TARG_BONUS) {
@@ -98,6 +110,16 @@ void az_tick_play_state(az_play_state_t *state, double time) {
                          -(1.0 + elasticity)));
     }
   }
+}
+
+/*===========================================================================*/
+
+void az_tick_play_state(az_play_state_t *state, double time) {
+  ++state->clock;
+  spawn_baddies(state, time);
+  az_tick_projectiles(state, time);
+  az_tick_baddies(state, time);
+  tick_avatar(state, time);
 
   // If all of this wave's targets are collected, go to the bonus round.
   int current_wave_targets_remaining = 0;
