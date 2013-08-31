@@ -62,6 +62,15 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
         glVertex2f(10, -3); glVertex2f(10, 3);
       } glEnd();
       break;
+    case AZ_BAD_GHOST:
+      glBegin(GL_TRIANGLE_FAN); {
+        glColor4f(1, 1, 1, 0.25); glVertex2f(0, 0); glColor4f(1, 1, 1, 0);
+        for (int i = 0; i <= 360; i += 30) {
+          glVertex2d(AZ_BADDIE_RADIUS * cos(AZ_DEG2RAD(i)),
+                     AZ_BADDIE_RADIUS * sin(AZ_DEG2RAD(i)));
+        }
+      } glEnd();
+      break;
   }
 }
 

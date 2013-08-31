@@ -127,6 +127,36 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         }
       }
     } break;
+    case AZ_BAD_GHOST: {
+      // Make all nearby targets invisible.  Seek towards the target nearest
+      // the avatar that doesn't have a nearby baddie (including this one).
+      double best_dist = INFINITY;
+      az_vector_t goal = baddie->position;
+      AZ_ARRAY_LOOP(target, state->targets) {
+        if (target->kind == AZ_TARG_NOTHING) continue;
+        if (az_vwithin(target->position, baddie->position, 150.0)) {
+          target->is_invisible = true;
+        }
+        bool alone = true;
+        AZ_ARRAY_LOOP(other, state->baddies) {
+          if (other->kind == AZ_BAD_NOTHING) continue;
+          if (az_vwithin(other->position, target->position, 100.0)) {
+            alone = false;
+            break;
+          }
+        }
+        if (alone) {
+          const double dist =
+            az_vdist(target->position, state->avatar_position);
+          if (dist < best_dist) {
+            best_dist = dist;
+            goal = target->position;
+          }
+        }
+      }
+      const az_vector_t goal_delta = az_vsub(goal, baddie->position);
+      az_vpluseq(&baddie->velocity, az_vmul(goal_delta, time * 0.1));
+    } break;
   }
 
   return false;

@@ -39,6 +39,7 @@ typedef enum {
   AZ_BAD_TANK,
   AZ_BAD_GUARD,
   AZ_BAD_BASILISK,
+  AZ_BAD_GHOST,
 } az_baddie_kind_t;
 
 typedef struct {
@@ -58,6 +59,8 @@ typedef struct {
   az_target_kind_t kind;
   az_vector_t position;
   int wave;
+  bool is_invisible; // true if target should be invisible
+  double invisibility; // 0.0 (visible) to 1.0 (visible)
 } az_target_t;
 
 typedef enum {

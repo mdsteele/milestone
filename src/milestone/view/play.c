@@ -35,14 +35,14 @@
 
 #define STATUS_HEIGHT 20
 
-static void set_color_for_wave(int wave) {
+static void set_color_for_wave(int wave, GLfloat alpha) {
   switch (wave % 6) {
-    case 0: glColor3f(1, 0, 1); break;
-    case 1: glColor3f(1, 1, 0); break;
-    case 2: glColor3f(0, 0.8, 0.8); break;
-    case 4: glColor3f(1, 0, 0); break;
-    case 5: glColor3f(0.25, 0.25, 1); break;
-    case 3: glColor3f(0, 0.75, 0); break;
+    case 0: glColor4f(1,    0,    1,   alpha); break;
+    case 1: glColor4f(1,    1,    0,   alpha); break;
+    case 2: glColor4f(0,    0.8,  0.8, alpha); break;
+    case 4: glColor4f(1,    0,    0,   alpha); break;
+    case 5: glColor4f(0.25, 0.25, 1,   alpha); break;
+    case 3: glColor4f(0,    0.75, 0,   alpha); break;
   }
 }
 
@@ -58,7 +58,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
     glColor3f(1, 1, 1);
   } else {
-    set_color_for_wave(state->current_wave);
+    set_color_for_wave(state->current_wave, 1.0f);
   }
   az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
   glBegin(GL_TRIANGLE_STRIP); {
@@ -72,7 +72,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   } glEnd();
 
   // Border:
-  set_color_for_wave(state->current_wave + 1);
+  set_color_for_wave(state->current_wave + 1, 1.0f);
   glBegin(GL_LINE_LOOP); {
     const GLfloat left = 1.5f;
     const GLfloat right = AZ_SCREEN_WIDTH - 1.5f;
@@ -85,10 +85,12 @@ void az_draw_play_screen(const az_play_state_t *state) {
   // Targets:
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
+    if (target->invisibility >= 1.0) continue;
     glPushMatrix(); {
       glTranslated(target->position.x, target->position.y, 0);
-      if (target->kind == AZ_TARG_BONUS) glColor3f(1, 1, 1);
-      else set_color_for_wave(target->wave);
+      if (target->kind == AZ_TARG_BONUS) {
+        glColor4f(1, 1, 1, 1.0 - target->invisibility);
+      } else set_color_for_wave(target->wave, 1.0 - target->invisibility);
       glBegin(GL_LINE_LOOP); {
         glVertex2f(8, 8); glVertex2f(-8, 8);
         glVertex2f(-8, -8); glVertex2f(8, -8);

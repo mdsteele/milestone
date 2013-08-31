@@ -27,6 +27,7 @@
 #include "milestone/state/play.h"
 #include "milestone/tick/baddie.h"
 #include "milestone/tick/projectile.h"
+#include "milestone/tick/target.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/random.h"
 #include "milestone/util/vector.h"
@@ -59,7 +60,7 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   --state->num_baddies_to_spawn;
 
   // TODO: pick a baddie kind based on wave
-  const az_baddie_kind_t kind = AZ_BAD_BASILISK;
+  const az_baddie_kind_t kind = AZ_BAD_GHOST;
 
   az_add_baddie(state, kind, pick_spawn_point(state));
 }
@@ -119,6 +120,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   spawn_baddies(state, time);
   az_tick_projectiles(state, time);
   az_tick_baddies(state, time);
+  az_tick_targets(state, time);
   tick_avatar(state, time);
 
   // If all of this wave's targets are collected, go to the bonus round.
