@@ -18,58 +18,20 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_GUI_EVENT_H_
-#define MILESTONE_GUI_EVENT_H_
+#ifndef MILESTONE_STATE_PLAY_H_
+#define MILESTONE_STATE_PLAY_H_
 
-#include <stdbool.h>
-
-#include "milestone/util/key.h"
+#include "milestone/util/vector.h"
 
 /*===========================================================================*/
 
-typedef enum {
-  AZ_EVENT_KEY_DOWN,
-  AZ_EVENT_KEY_UP,
-  AZ_EVENT_MOUSE_DOWN,
-  AZ_EVENT_MOUSE_UP,
-  AZ_EVENT_MOUSE_MOVE
-} az_event_kind_t;
+typedef struct {
+  az_vector_t avatar_position;
+  az_vector_t avatar_velocity;
+} az_play_state_t;
 
-typedef union {
-  az_event_kind_t kind;
-  struct {
-    az_event_kind_t kind;
-    az_key_id_t id;
-    bool command; // true if Command/Ctrl (depending on OS) key is held
-    bool shift; // true if Shift key is held
-    int character; // unicode character
-  } key;
-  struct {
-    az_event_kind_t kind;
-    int x, y; // current mouse position
-    int dx, dy; // change in mouse position (for MOUSE_MOVE only)
-    bool pressed; // true if left mouse button is held
-  } mouse;
-} az_event_t;
-
-// Get the next event in the queue and return true, or return false if the
-// event queue is empty.
-bool az_poll_event(az_event_t *event);
-
-// Get the current position of the mouse in the window and return true, or
-// return false if the mouse is not currently in the window.
-bool az_get_mouse_position(int *x, int *y);
-
-// Set the current position of the mouse in the window;
-void az_set_mouse_position(int x, int y);
-
-// Determine if the (left) mouse button is currently being held down.
-bool az_is_mouse_held(void);
-
-// Determine if a particular key is currently being held down.  The argument
-// must not be AZ_KEY_UNKNOWN.
-bool az_is_key_held(az_key_id_t key);
+void az_init_play_state(az_play_state_t *state);
 
 /*===========================================================================*/
 
-#endif // MILESTONE_GUI_EVENT_H_
+#endif // MILESTONE_STATE_PLAY_H_

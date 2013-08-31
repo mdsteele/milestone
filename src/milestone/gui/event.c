@@ -263,6 +263,10 @@ bool az_get_mouse_position(int *x, int *y) {
   return true;
 }
 
+void az_set_mouse_position(int x, int y) {
+  SDL_WarpMouse(x, y);
+}
+
 bool az_is_mouse_held(void) {
   return (bool)(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT));
 }

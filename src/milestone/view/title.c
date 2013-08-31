@@ -17,59 +17,29 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_GUI_EVENT_H_
-#define MILESTONE_GUI_EVENT_H_
+#include "milestone/view/title.h"
 
-#include <stdbool.h>
+#include "GL/gl.h"
 
-#include "milestone/util/key.h"
-
-/*===========================================================================*/
-
-typedef enum {
-  AZ_EVENT_KEY_DOWN,
-  AZ_EVENT_KEY_UP,
-  AZ_EVENT_MOUSE_DOWN,
-  AZ_EVENT_MOUSE_UP,
-  AZ_EVENT_MOUSE_MOVE
-} az_event_kind_t;
-
-typedef union {
-  az_event_kind_t kind;
-  struct {
-    az_event_kind_t kind;
-    az_key_id_t id;
-    bool command; // true if Command/Ctrl (depending on OS) key is held
-    bool shift; // true if Shift key is held
-    int character; // unicode character
-  } key;
-  struct {
-    az_event_kind_t kind;
-    int x, y; // current mouse position
-    int dx, dy; // change in mouse position (for MOUSE_MOVE only)
-    bool pressed; // true if left mouse button is held
-  } mouse;
-} az_event_t;
-
-// Get the next event in the queue and return true, or return false if the
-// event queue is empty.
-bool az_poll_event(az_event_t *event);
-
-// Get the current position of the mouse in the window and return true, or
-// return false if the mouse is not currently in the window.
-bool az_get_mouse_position(int *x, int *y);
-
-// Set the current position of the mouse in the window;
-void az_set_mouse_position(int x, int y);
-
-// Determine if the (left) mouse button is currently being held down.
-bool az_is_mouse_held(void);
-
-// Determine if a particular key is currently being held down.  The argument
-// must not be AZ_KEY_UNKNOWN.
-bool az_is_key_held(az_key_id_t key);
+#include "milestone/constants.h"
+#include "milestone/view/string.h"
 
 /*===========================================================================*/
 
-#endif // MILESTONE_GUI_EVENT_H_
+void az_draw_title_screen(void) {
+  // Border:
+  glColor3f(0, 0, 1);
+  glBegin(GL_LINE_LOOP); {
+    glVertex2f(1.5f, 1.5f);
+    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, 1.5f);
+    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, AZ_SCREEN_HEIGHT - 1.5f);
+    glVertex2f(1.5f, AZ_SCREEN_HEIGHT - 1.5f);
+  } glEnd();
+  // Title:
+  glColor3f(1, 0, 0);
+  az_draw_string(40, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 200, "Milestone");
+  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 300,
+                 "Click mouse to start");
+}
+
+/*===========================================================================*/

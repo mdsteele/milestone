@@ -27,29 +27,34 @@
 #include "milestone/constants.h"
 #include "milestone/gui/event.h"
 #include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#include "milestone/state/play.h"
+#include "milestone/util/vector.h"
+#include "milestone/view/play.h"
+#include "milestone/view/title.h"
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
+static az_play_state_t play_state;
+
+static void tick_game(double time) {
+  play_state.avatar_velocity = az_vcaplen(play_state.avatar_velocity, 500.0);
+  az_vpluseq(&play_state.avatar_position,
+             az_vmul(play_state.avatar_velocity, time));
 }
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+/*===========================================================================*/
 
+typedef enum {
+  TITLE_MODE,
+  PLAY_MODE,
+  GAMEOVER_MODE
+} az_mode_t;
+
+static az_mode_t run_title_mode(void) {
   while (true) {
     // Tick the state and redraw the screen.
     az_start_screen_redraw(); {
-      draw_screen();
+      az_draw_title_screen();
     } az_finish_screen_redraw();
 
     // Get and process GUI events.
@@ -57,9 +62,58 @@ int main(int argc, char **argv) {
     while (az_poll_event(&event)) {
       switch (event.kind) {
         case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
+          return PLAY_MODE;
         default: break;
       }
+    }
+  }
+}
+
+static az_mode_t run_play_mode(void) {
+  az_init_play_state(&play_state);
+  az_set_mouse_position(400, 250);
+
+  while (true) {
+    // Tick the state and redraw the screen.
+    tick_game(1.0 / 60.0);
+    az_start_screen_redraw(); {
+      az_draw_play_screen(&play_state);
+    } az_finish_screen_redraw();
+
+    // Get and process GUI events.
+    az_event_t event;
+    while (az_poll_event(&event)) {
+      switch (event.kind) {
+        case AZ_EVENT_MOUSE_DOWN:
+          return GAMEOVER_MODE;
+        case AZ_EVENT_MOUSE_MOVE: {
+          const az_vector_t delta = {event.mouse.x - 400, event.mouse.y - 250};
+          az_vpluseq(&play_state.avatar_velocity, az_vmul(delta, 0.5));
+          az_set_mouse_position(400, 250);
+        } break;
+        default: break;
+      }
+    }
+  }
+}
+
+static az_mode_t run_gameover_mode(void) {
+  // TODO: Implement a game over screen.
+  printf("Game over!\n");
+  return TITLE_MODE;
+}
+
+/*===========================================================================*/
+
+int main(int argc, char **argv) {
+  az_init_gui(false);
+
+  az_mode_t mode = TITLE_MODE;
+  while (true) {
+    switch (mode) {
+      case TITLE_MODE:    mode = run_title_mode();    break;
+      case PLAY_MODE:     mode = run_play_mode();     break;
+      case GAMEOVER_MODE: mode = run_gameover_mode(); break;
     }
   }
 
