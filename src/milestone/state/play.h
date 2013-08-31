@@ -29,15 +29,27 @@
 
 /*===========================================================================*/
 
-#define AZ_MAX_NUM_TARGETS 200
+#define AZ_MAX_NUM_BADDIES 100
 #define AZ_MAX_NUM_PROJECTILES 200
+#define AZ_MAX_NUM_TARGETS 200
 #define AZ_SECONDS_PER_WAVE 20.0
+
+typedef enum {
+  AZ_BAD_NOTHING = 0,
+  AZ_BAD_TANK,
+} az_baddie_kind_t;
+
+typedef struct {
+  az_baddie_kind_t kind;
+  az_vector_t position;
+  az_vector_t velocity;
+  double cooldown; // seconds
+} az_baddie_t;
 
 typedef enum {
   AZ_TARG_NOTHING = 0,
   AZ_TARG_BONUS,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
+  AZ_TARG_NORMAL,
 } az_target_kind_t;
 
 typedef struct {
@@ -61,14 +73,21 @@ typedef struct {
 
 typedef struct {
   az_clock_t clock;
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
+  // Player stats:
   int num_lives;
+  int64_t score;
+  // Wave:
   int current_wave;
   int max_wave_on_board;
   bool bonus_round;
   double wave_time_remaining; // seconds
-  int64_t score;
+  int num_baddies_to_spawn;
+  double spawn_cooldown; // seconds
+  // Avatar:
+  az_vector_t avatar_position;
+  az_vector_t avatar_velocity;
+  // Objects:
+  az_baddie_t baddies[AZ_MAX_NUM_BADDIES];
   az_projectile_t projectiles[AZ_MAX_NUM_PROJECTILES];
   az_target_t targets[AZ_MAX_NUM_TARGETS];
 } az_play_state_t;
@@ -79,8 +98,13 @@ void az_init_play_state(az_play_state_t *state);
 
 int az_num_waves_at_once_for_wave(int wave);
 
+void az_add_baddie(az_play_state_t *state, az_baddie_kind_t kind,
+                   az_vector_t position);
+
 void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
                        az_vector_t position, az_vector_t velocity);
+
+void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity);
 
 /*===========================================================================*/
 

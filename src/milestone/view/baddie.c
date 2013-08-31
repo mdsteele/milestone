@@ -17,29 +17,42 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_CONSTANTS_H_
-#define MILESTONE_CONSTANTS_H_
+#include "milestone/view/baddie.h"
+
+#include <assert.h>
+
+#include <GL/gl.h>
+
+#include "milestone/state/play.h"
+#include "milestone/util/clock.h"
+#include "milestone/util/misc.h"
 
 /*===========================================================================*/
 
-// The dimensions of the screen, in pixels:
-#define AZ_SCREEN_WIDTH  800
-#define AZ_SCREEN_HEIGHT 500
+static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
+  assert(baddie->kind != AZ_BAD_NOTHING);
+  switch (baddie->kind) {
+    case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_BAD_TANK:
+      glColor3f(0, 0.5, 0.25);
+      glBegin(GL_LINE_LOOP); {
+        glVertex2f(3, 10); glVertex2f(-3, 10);
+        glVertex2f(-10, 3); glVertex2f(-10, -3);
+        glVertex2f(-3, -10); glVertex2f(3, -10);
+        glVertex2f(10, -3); glVertex2f(10, 3);
+      } glEnd();
+      break;
+  }
+}
 
-// The bounds of the board:
-#define AZ_BOARD_MIN_X 1
-#define AZ_BOARD_CENTER_X (AZ_SCREEN_WIDTH / 2)
-#define AZ_BOARD_MAX_X (AZ_SCREEN_WIDTH - 1)
-#define AZ_BOARD_MIN_Y 21
-#define AZ_BOARD_CENTER_Y (AZ_SCREEN_HEIGHT / 2)
-#define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
-
-// Hit radius of the player's avatar, in pixels:
-#define AZ_AVATAR_RADIUS 20
-// Hit radius of baddies, in pixels:
-#define AZ_BADDIE_RADIUS 20
+void az_draw_baddies(const az_play_state_t *state) {
+  AZ_ARRAY_LOOP(baddie, state->baddies) {
+    if (baddie->kind == AZ_BAD_NOTHING) continue;
+    glPushMatrix(); {
+      glTranslated(baddie->position.x, baddie->position.y, 0);
+      draw_baddie(baddie, state->clock);
+    } glPopMatrix();
+  }
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_CONSTANTS_H_

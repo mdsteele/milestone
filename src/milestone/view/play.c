@@ -27,6 +27,7 @@
 #include "milestone/state/play.h"
 #include "milestone/gui/event.h"
 #include "milestone/util/misc.h"
+#include "milestone/view/baddie.h"
 #include "milestone/view/projectile.h"
 #include "milestone/view/string.h"
 
@@ -93,6 +94,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
     } glPopMatrix();
   }
 
+  az_draw_baddies(state);
   az_draw_projectiles(state);
 
   // Avatar:

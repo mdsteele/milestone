@@ -19,11 +19,13 @@
 
 #include "milestone/tick/play.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
+#include "milestone/tick/baddie.h"
 #include "milestone/tick/projectile.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/random.h"
@@ -31,42 +33,50 @@
 
 /*===========================================================================*/
 
-#define EDGE_ELASTICITY 0.5
+static az_vector_t pick_spawn_point(const az_play_state_t *state) {
+  const az_vector_t avatar = state->avatar_position;
+  int corner = az_randint(1, 3);
+  if (!(avatar.x >= AZ_BOARD_CENTER_X && avatar.y >= AZ_BOARD_CENTER_Y)) {
+    if (--corner == 0) return (az_vector_t){AZ_BOARD_MAX_X, AZ_BOARD_MAX_Y};
+  }
+  if (!(avatar.x < AZ_BOARD_CENTER_X && avatar.y >= AZ_BOARD_CENTER_Y)) {
+    if (--corner == 0) return (az_vector_t){AZ_BOARD_MIN_X, AZ_BOARD_MAX_Y};
+  }
+  if (!(avatar.x < AZ_BOARD_CENTER_X && avatar.y < AZ_BOARD_CENTER_Y)) {
+    if (--corner == 0) return (az_vector_t){AZ_BOARD_MIN_X, AZ_BOARD_MIN_Y};
+  }
+  assert(!(avatar.x >= AZ_BOARD_CENTER_X && avatar.y < AZ_BOARD_CENTER_Y));
+  assert(corner == 1);
+  return (az_vector_t){AZ_BOARD_MAX_X, AZ_BOARD_MIN_Y};
+}
+
+static void spawn_baddies(az_play_state_t *state, double time) {
+  state->spawn_cooldown -= time;
+  if (state->spawn_cooldown > 0.0) return;
+  state->spawn_cooldown = 1.9;
+
+  if (state->num_baddies_to_spawn <= 0) return;
+  --state->num_baddies_to_spawn;
+
+  // TODO: pick a baddie kind based on wave
+  const az_baddie_kind_t kind = AZ_BAD_TANK;
+
+  az_add_baddie(state, kind, pick_spawn_point(state));
+}
+
+/*===========================================================================*/
 
 void az_tick_play_state(az_play_state_t *state, double time) {
   ++state->clock;
+  spawn_baddies(state, time);
+  az_tick_projectiles(state, time);
+  az_tick_baddies(state, time);
 
   // Move avatar:
   state->avatar_velocity = az_vcaplen(state->avatar_velocity, 500.0);
   az_vpluseq(&state->avatar_position,
              az_vmul(state->avatar_velocity, time));
-  // Bounce off edges of board:
-  if (state->avatar_position.x < AZ_BOARD_MIN_X) {
-    state->avatar_position.x = AZ_BOARD_MIN_X;
-    if (state->avatar_velocity.x < 0) {
-      state->avatar_velocity.x = -EDGE_ELASTICITY * state->avatar_velocity.x;
-    }
-  }
-  if (state->avatar_position.x > AZ_BOARD_MAX_X) {
-    state->avatar_position.x = AZ_BOARD_MAX_X;
-    if (state->avatar_velocity.x > 0) {
-      state->avatar_velocity.x = -EDGE_ELASTICITY * state->avatar_velocity.x;
-    }
-  }
-  if (state->avatar_position.y < AZ_BOARD_MIN_Y) {
-    state->avatar_position.y = AZ_BOARD_MIN_Y;
-    if (state->avatar_velocity.y < 0) {
-      state->avatar_velocity.y = -EDGE_ELASTICITY * state->avatar_velocity.y;
-    }
-  }
-  if (state->avatar_position.y > AZ_BOARD_MAX_Y) {
-    state->avatar_position.y = AZ_BOARD_MAX_Y;
-    if (state->avatar_velocity.y > 0) {
-      state->avatar_velocity.y = -EDGE_ELASTICITY * state->avatar_velocity.y;
-    }
-  }
-
-  az_tick_projectiles(state, time);
+  az_bounce_off_edges(&state->avatar_position, &state->avatar_velocity);
 
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {
@@ -126,10 +136,13 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   // Check for wave being over:
   state->wave_time_remaining -= time;
   if (state->wave_time_remaining <= 0.0) {
+    // Advance to the next wave:
     ++state->current_wave;
     state->wave_time_remaining = AZ_SECONDS_PER_WAVE;
     state->bonus_round = false;
 
+    // Move any targets from the previous wave to this one, and lose a life if
+    // there are any such targets:
     bool delayed = false;
     AZ_ARRAY_LOOP(target, state->targets) {
       if (target->kind == AZ_TARG_NOTHING) continue;
@@ -144,6 +157,8 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       --state->num_lives;
       // TODO: check for game over
     }
+
+    // Add new targets:
     const int new_max_wave_on_board = state->current_wave +
       az_num_waves_at_once_for_wave(state->current_wave) - 1;
     for (int wave = state->max_wave_on_board + 1;
@@ -151,7 +166,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       int num_new_targets = 6 + 2 * sqrt(wave);
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
-        target->kind = AZ_TARG_RUN_OVER;
+        target->kind = AZ_TARG_NORMAL;
         target->wave = wave;
         target->position.x =
           az_random(AZ_BOARD_MIN_X + 10, AZ_BOARD_MAX_X - 10);
@@ -162,6 +177,10 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       }
     }
     state->max_wave_on_board = new_max_wave_on_board;
+
+    // Prepare for spawning baddies:
+    state->num_baddies_to_spawn = state->current_wave / 2;
+    state->spawn_cooldown = 1.2;
   }
 }
 

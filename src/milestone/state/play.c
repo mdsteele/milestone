@@ -41,6 +41,19 @@ int az_num_waves_at_once_for_wave(int wave) {
   else return 2;
 }
 
+void az_add_baddie(az_play_state_t *state, az_baddie_kind_t kind,
+                   az_vector_t position) {
+  AZ_ARRAY_LOOP(baddie, state->baddies) {
+    if (baddie->kind == AZ_BAD_NOTHING) {
+      memset(baddie, 0, sizeof(*baddie));
+      baddie->kind = kind;
+      baddie->position = position;
+      baddie->cooldown = 1.0;
+      return;
+    }
+  }
+}
+
 void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
                        az_vector_t position, az_vector_t velocity) {
   AZ_ARRAY_LOOP(proj, state->projectiles) {
@@ -51,6 +64,27 @@ void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
       proj->velocity = velocity;
       return;
     }
+  }
+}
+
+#define EDGE_ELASTICITY 0.5
+
+void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity) {
+  if (position->x < AZ_BOARD_MIN_X) {
+    position->x = AZ_BOARD_MIN_X;
+    if (velocity->x < 0) velocity->x = -EDGE_ELASTICITY * velocity->x;
+  }
+  if (position->x > AZ_BOARD_MAX_X) {
+    position->x = AZ_BOARD_MAX_X;
+    if (velocity->x > 0) velocity->x = -EDGE_ELASTICITY * velocity->x;
+  }
+  if (position->y < AZ_BOARD_MIN_Y) {
+    position->y = AZ_BOARD_MIN_Y;
+    if (velocity->y < 0) velocity->y = -EDGE_ELASTICITY * velocity->y;
+  }
+  if (position->y > AZ_BOARD_MAX_Y) {
+    position->y = AZ_BOARD_MAX_Y;
+    if (velocity->y > 0) velocity->y = -EDGE_ELASTICITY * velocity->y;
   }
 }
 

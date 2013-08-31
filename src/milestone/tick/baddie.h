@@ -18,28 +18,15 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_CONSTANTS_H_
-#define MILESTONE_CONSTANTS_H_
+#ifndef MILESTONE_TICK_BADDIE_H_
+#define MILESTONE_TICK_BADDIE_H_
+
+#include "milestone/state/play.h"
 
 /*===========================================================================*/
 
-// The dimensions of the screen, in pixels:
-#define AZ_SCREEN_WIDTH  800
-#define AZ_SCREEN_HEIGHT 500
-
-// The bounds of the board:
-#define AZ_BOARD_MIN_X 1
-#define AZ_BOARD_CENTER_X (AZ_SCREEN_WIDTH / 2)
-#define AZ_BOARD_MAX_X (AZ_SCREEN_WIDTH - 1)
-#define AZ_BOARD_MIN_Y 21
-#define AZ_BOARD_CENTER_Y (AZ_SCREEN_HEIGHT / 2)
-#define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
-
-// Hit radius of the player's avatar, in pixels:
-#define AZ_AVATAR_RADIUS 20
-// Hit radius of baddies, in pixels:
-#define AZ_BADDIE_RADIUS 20
+void az_tick_baddies(az_play_state_t *state, double time);
 
 /*===========================================================================*/
 
-#endif // MILESTONE_CONSTANTS_H_
+#endif // MILESTONE_TICK_BADDIE_H_
