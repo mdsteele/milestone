@@ -72,8 +72,19 @@ void az_tick_play_state(az_play_state_t *state, double time) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (az_vwithin(target->position, state->avatar_position,
                    AZ_AVATAR_RADIUS)) {
+      int value = 250;
+      double elasticity = 0.75;
+      if (target->kind == AZ_TARG_BONUS) {
+        value *= sqrt(target->wave);
+        elasticity = 2.0;
+      }
+      const az_vector_t delta =
+        az_vsub(state->avatar_position, target->position);
       target->kind = AZ_TARG_NOTHING;
-      state->score += 250;
+      state->score += value;
+      az_vpluseq(&state->avatar_velocity,
+                 az_vmul(az_vproj(state->avatar_velocity, delta),
+                         -(1.0 + elasticity)));
     }
   }
 
@@ -96,7 +107,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       ++state->current_wave;
     } else if (!state->bonus_round) {
       state->bonus_round = true;
-      int num_bonus_targets = 8 + state->current_wave / 2;
+      int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
         target->kind = AZ_TARG_BONUS;
@@ -136,7 +147,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       az_num_waves_at_once_for_wave(state->current_wave) - 1;
     for (int wave = state->max_wave_on_board + 1;
          wave <= new_max_wave_on_board; ++wave) {
-      int num_new_targets = 5 + wave;
+      int num_new_targets = 6 + 2 * sqrt(wave);
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
         target->kind = AZ_TARG_RUN_OVER;
