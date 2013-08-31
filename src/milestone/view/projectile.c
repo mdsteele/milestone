@@ -17,20 +17,52 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_TICK_PLAY_H_
-#define MILESTONE_TICK_PLAY_H_
+#include "milestone/view/projectile.h"
+
+#include <assert.h>
+#include <math.h>
+
+#include <GL/gl.h>
 
 #include "milestone/state/play.h"
+#include "milestone/util/clock.h"
+#include "milestone/util/misc.h"
 
 /*===========================================================================*/
 
-void az_tick_play_state(az_play_state_t *state, double time);
+static void draw_projectile(const az_projectile_t *proj, az_clock_t clock) {
+  assert(proj->kind != AZ_PROJ_NOTHING);
+  switch (proj->kind) {
+    case AZ_PROJ_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_PROJ_BULLET:
+      glBegin(GL_TRIANGLE_FAN); {
+        glColor3f(0.7, 0.7, 0.7); glVertex2f(0, 0); glColor3f(0.4, 0.4, 0.4);
+        const double radius = 3.0;
+        for (int i = 0; i <= 360; i += 30) {
+          glVertex2d(radius * cos(AZ_DEG2RAD(i)), radius * sin(AZ_DEG2RAD(i)));
+        }
+      } glEnd();
+      break;
+    case AZ_PROJ_TANK_SHELL:
+      glBegin(GL_TRIANGLE_FAN); {
+        glColor3f(0.5, 0.5, 0.5); glVertex2f(0, 0); glColor3f(0, 0.5, 0);
+        const double radius = 5.0;
+        for (int i = 0; i <= 360; i += 30) {
+          glVertex2d(radius * cos(AZ_DEG2RAD(i)), radius * sin(AZ_DEG2RAD(i)));
+        }
+      } glEnd();
+      break;
+  }
+}
 
-void az_play_apply_mouse_motion(az_play_state_t *state, int dx, int dy);
-
-void az_play_apply_mouse_click(az_play_state_t *state);
+void az_draw_projectiles(const az_play_state_t *state) {
+  AZ_ARRAY_LOOP(proj, state->projectiles) {
+    if (proj->kind == AZ_PROJ_NOTHING) continue;
+    glPushMatrix(); {
+      glTranslated(proj->position.x, proj->position.y, 0);
+      draw_projectile(proj, state->clock);
+    } glPopMatrix();
+  }
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_TICK_PLAY_H_

@@ -18,19 +18,15 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_TICK_PLAY_H_
-#define MILESTONE_TICK_PLAY_H_
+#ifndef MILESTONE_VIEW_PROJECTILE_H_
+#define MILESTONE_VIEW_PROJECTILE_H_
 
 #include "milestone/state/play.h"
 
 /*===========================================================================*/
 
-void az_tick_play_state(az_play_state_t *state, double time);
-
-void az_play_apply_mouse_motion(az_play_state_t *state, int dx, int dy);
-
-void az_play_apply_mouse_click(az_play_state_t *state);
+void az_draw_projectiles(const az_play_state_t *state);
 
 /*===========================================================================*/
 
-#endif // MILESTONE_TICK_PLAY_H_
+#endif // MILESTONE_VIEW_PROJECTILE_H_

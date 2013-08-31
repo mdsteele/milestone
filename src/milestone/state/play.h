@@ -30,6 +30,7 @@
 /*===========================================================================*/
 
 #define AZ_MAX_NUM_TARGETS 200
+#define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_SECONDS_PER_WAVE 20.0
 
 typedef enum {
@@ -45,6 +46,19 @@ typedef struct {
   int wave;
 } az_target_t;
 
+typedef enum {
+  AZ_PROJ_NOTHING = 0,
+  AZ_PROJ_BULLET,
+  AZ_PROJ_TANK_SHELL,
+} az_proj_kind_t;
+
+typedef struct {
+  az_proj_kind_t kind;
+  az_vector_t position;
+  az_vector_t velocity;
+  double age;
+} az_projectile_t;
+
 typedef struct {
   az_clock_t clock;
   az_vector_t avatar_position;
@@ -55,6 +69,7 @@ typedef struct {
   bool bonus_round;
   double wave_time_remaining; // seconds
   int64_t score;
+  az_projectile_t projectiles[AZ_MAX_NUM_PROJECTILES];
   az_target_t targets[AZ_MAX_NUM_TARGETS];
 } az_play_state_t;
 
@@ -63,6 +78,9 @@ typedef struct {
 void az_init_play_state(az_play_state_t *state);
 
 int az_num_waves_at_once_for_wave(int wave);
+
+void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
+                       az_vector_t position, az_vector_t velocity);
 
 /*===========================================================================*/
 

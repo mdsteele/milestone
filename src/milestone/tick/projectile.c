@@ -17,20 +17,57 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_TICK_PLAY_H_
-#define MILESTONE_TICK_PLAY_H_
+#include "milestone/tick/projectile.h"
 
+#include <assert.h>
+
+#include "milestone/constants.h"
 #include "milestone/state/play.h"
+#include "milestone/util/misc.h"
 
 /*===========================================================================*/
 
-void az_tick_play_state(az_play_state_t *state, double time);
+// Return true if projectile should disappear.
+static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
+                            double time) {
+  assert(proj->kind != AZ_PROJ_NOTHING);
 
-void az_play_apply_mouse_motion(az_play_state_t *state, int dx, int dy);
+  // Age the projectile, removing it if it's too old:
+  proj->age += time;
+  if (proj->age > 10.0) {
+    return true;
+  }
 
-void az_play_apply_mouse_click(az_play_state_t *state);
+  // Move the projectile, removing it if it leaves the board:
+  az_vpluseq(&proj->position, az_vmul(proj->velocity, time));
+  if (proj->position.x < AZ_BOARD_MIN_X || proj->position.x > AZ_BOARD_MAX_X ||
+      proj->position.y < AZ_BOARD_MIN_Y || proj->position.y > AZ_BOARD_MAX_Y) {
+    return true;
+  }
+
+  // Apply special logic for the projectile kind:
+  switch (proj->kind) {
+    case AZ_PROJ_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_PROJ_BULLET:
+      // TODO: kill baddies
+      break;
+    case AZ_PROJ_TANK_SHELL:
+      if (az_vwithin(proj->position, state->avatar_position,
+                     AZ_AVATAR_RADIUS)) {
+        az_vpluseq(&state->avatar_velocity, az_vmul(proj->velocity, 0.5));
+        return true;
+      }
+      break;
+  }
+
+  return false;
+}
+
+void az_tick_projectiles(az_play_state_t *state, double time) {
+  AZ_ARRAY_LOOP(proj, state->projectiles) {
+    if (proj->kind == AZ_PROJ_NOTHING) continue;
+    if (tick_projectile(state, proj, time)) proj->kind = AZ_PROJ_NOTHING;
+  }
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_TICK_PLAY_H_

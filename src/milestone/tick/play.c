@@ -24,13 +24,12 @@
 
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
+#include "milestone/tick/projectile.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/random.h"
 #include "milestone/util/vector.h"
 
 /*===========================================================================*/
-
-#define AZ_AVATAR_RADIUS 20.0
 
 #define EDGE_ELASTICITY 0.5
 
@@ -66,6 +65,8 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       state->avatar_velocity.y = -EDGE_ELASTICITY * state->avatar_velocity.y;
     }
   }
+
+  az_tick_projectiles(state, time);
 
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {
@@ -162,6 +163,19 @@ void az_tick_play_state(az_play_state_t *state, double time) {
     }
     state->max_wave_on_board = new_max_wave_on_board;
   }
+}
+
+/*===========================================================================*/
+
+void az_play_apply_mouse_motion(az_play_state_t *state, int dx, int dy) {
+  const az_vector_t impulse = {0.5 * dx, 0.5 * dy};
+  az_vpluseq(&state->avatar_velocity, impulse);
+}
+
+void az_play_apply_mouse_click(az_play_state_t *state) {
+  az_add_projectile(state, AZ_PROJ_BULLET, state->avatar_position,
+                    az_vadd(state->avatar_velocity,
+                            az_vwithlen(state->avatar_velocity, 200.0)));
 }
 
 /*===========================================================================*/

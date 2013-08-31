@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "milestone/constants.h"
+#include "milestone/util/misc.h"
 #include "milestone/util/vector.h"
 
 /*===========================================================================*/
@@ -38,6 +39,19 @@ int az_num_waves_at_once_for_wave(int wave) {
   if (wave >= 20) return 4;
   else if (wave >= 10) return 3;
   else return 2;
+}
+
+void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
+                       az_vector_t position, az_vector_t velocity) {
+  AZ_ARRAY_LOOP(proj, state->projectiles) {
+    if (proj->kind == AZ_PROJ_NOTHING) {
+      memset(proj, 0, sizeof(*proj));
+      proj->kind = kind;
+      proj->position = position;
+      proj->velocity = velocity;
+      return;
+    }
+  }
 }
 
 /*===========================================================================*/

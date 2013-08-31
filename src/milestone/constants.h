@@ -33,6 +33,9 @@
 #define AZ_BOARD_MIN_Y 21
 #define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
 
+// Radius of the player's avatar, in pixels:
+#define AZ_AVATAR_RADIUS 20
+
 /*===========================================================================*/
 
 #endif // MILESTONE_CONSTANTS_H_

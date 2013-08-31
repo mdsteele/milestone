@@ -30,7 +30,6 @@
 #include "milestone/state/play.h"
 #include "milestone/tick/play.h"
 #include "milestone/util/random.h"
-#include "milestone/util/vector.h"
 #include "milestone/view/play.h"
 #include "milestone/view/title.h"
 
@@ -63,9 +62,12 @@ static az_mode_t run_title_mode(void) {
   }
 }
 
+#define MOUSE_NEUTRAL_X (AZ_SCREEN_WIDTH / 2)
+#define MOUSE_NEUTRAL_Y (AZ_SCREEN_HEIGHT / 2)
+
 static az_mode_t run_play_mode(void) {
   az_init_play_state(&play_state);
-  az_set_mouse_position(400, 250);
+  az_set_mouse_position(MOUSE_NEUTRAL_X, MOUSE_NEUTRAL_Y);
 
   while (true) {
     // Tick the state and redraw the screen.
@@ -81,11 +83,15 @@ static az_mode_t run_play_mode(void) {
         case AZ_EVENT_KEY_DOWN:
           if (event.key.id == AZ_KEY_ESCAPE) return GAMEOVER_MODE;
           else break;
-        case AZ_EVENT_MOUSE_MOVE: {
-          const az_vector_t delta = {event.mouse.x - 400, event.mouse.y - 250};
-          az_vpluseq(&play_state.avatar_velocity, az_vmul(delta, 0.5));
-          az_set_mouse_position(400, 250);
-        } break;
+        case AZ_EVENT_MOUSE_DOWN:
+          az_play_apply_mouse_click(&play_state);
+          break;
+        case AZ_EVENT_MOUSE_MOVE:
+          az_play_apply_mouse_motion(&play_state,
+                                     event.mouse.x - MOUSE_NEUTRAL_X,
+                                     event.mouse.y - MOUSE_NEUTRAL_Y);
+          az_set_mouse_position(MOUSE_NEUTRAL_X, MOUSE_NEUTRAL_Y);
+          break;
         default: break;
       }
     }
