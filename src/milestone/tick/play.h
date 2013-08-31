@@ -18,49 +18,15 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_STATE_PLAY_H_
-#define MILESTONE_STATE_PLAY_H_
+#ifndef MILESTONE_TICK_PLAY_H_
+#define MILESTONE_TICK_PLAY_H_
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "milestone/util/vector.h"
+#include "milestone/state/play.h"
 
 /*===========================================================================*/
 
-#define AZ_MAX_NUM_TARGETS 200
-#define AZ_SECONDS_PER_WAVE 20.0
-
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
-} az_target_kind_t;
-
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  int wave;
-} az_target_t;
-
-typedef struct {
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
-  int num_lives;
-  int current_wave;
-  int max_wave_on_board;
-  bool bonus_round;
-  double wave_time_remaining; // seconds
-  int64_t score;
-  az_target_t targets[AZ_MAX_NUM_TARGETS];
-} az_play_state_t;
+void az_tick_play_state(az_play_state_t *state, double time);
 
 /*===========================================================================*/
 
-void az_init_play_state(az_play_state_t *state);
-
-int az_num_waves_at_once_for_wave(int wave);
-
-/*===========================================================================*/
-
-#endif // MILESTONE_STATE_PLAY_H_
+#endif // MILESTONE_TICK_PLAY_H_

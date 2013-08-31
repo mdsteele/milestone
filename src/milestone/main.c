@@ -28,6 +28,8 @@
 #include "milestone/gui/event.h"
 #include "milestone/gui/screen.h"
 #include "milestone/state/play.h"
+#include "milestone/tick/play.h"
+#include "milestone/util/random.h"
 #include "milestone/util/vector.h"
 #include "milestone/view/play.h"
 #include "milestone/view/title.h"
@@ -35,14 +37,6 @@
 /*===========================================================================*/
 
 static az_play_state_t play_state;
-
-static void tick_game(double time) {
-  play_state.avatar_velocity = az_vcaplen(play_state.avatar_velocity, 500.0);
-  az_vpluseq(&play_state.avatar_position,
-             az_vmul(play_state.avatar_velocity, time));
-}
-
-/*===========================================================================*/
 
 typedef enum {
   TITLE_MODE,
@@ -75,7 +69,7 @@ static az_mode_t run_play_mode(void) {
 
   while (true) {
     // Tick the state and redraw the screen.
-    tick_game(1.0 / 60.0);
+    az_tick_play_state(&play_state, 1.0 / 60.0);
     az_start_screen_redraw(); {
       az_draw_play_screen(&play_state);
     } az_finish_screen_redraw();
@@ -106,6 +100,7 @@ static az_mode_t run_gameover_mode(void) {
 /*===========================================================================*/
 
 int main(int argc, char **argv) {
+  az_init_random();
   az_init_gui(false);
 
   az_mode_t mode = TITLE_MODE;

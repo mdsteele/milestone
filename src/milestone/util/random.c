@@ -17,50 +17,40 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_STATE_PLAY_H_
-#define MILESTONE_STATE_PLAY_H_
+#include "milestone/util/random.h"
 
+#include <assert.h>
+#include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
-
-#include "milestone/util/vector.h"
-
-/*===========================================================================*/
-
-#define AZ_MAX_NUM_TARGETS 200
-#define AZ_SECONDS_PER_WAVE 20.0
-
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
-} az_target_kind_t;
-
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  int wave;
-} az_target_t;
-
-typedef struct {
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
-  int num_lives;
-  int current_wave;
-  int max_wave_on_board;
-  bool bonus_round;
-  double wave_time_remaining; // seconds
-  int64_t score;
-  az_target_t targets[AZ_MAX_NUM_TARGETS];
-} az_play_state_t;
+#include <stdlib.h>
+#include <time.h>
 
 /*===========================================================================*/
 
-void az_init_play_state(az_play_state_t *state);
+static bool random_initialized = false;
 
-int az_num_waves_at_once_for_wave(int wave);
+void az_init_random(void) {
+  assert(!random_initialized);
+  srand(time(NULL));
+  random_initialized = true;
+}
+
+double az_random(double min, double max) {
+  assert(random_initialized);
+  assert(isfinite(min));
+  assert(isfinite(max));
+  assert(min < max);
+  // This is a terrible, terrible implementation of random numbers.
+  return min + (max - min) * (double)rand() / (1.0 + (double)RAND_MAX);
+}
+
+int az_randint(int min, int max) {
+  assert(random_initialized);
+  assert(min <= max);
+  if (min == max) return min;
+  // This is a terrible, terrible implementation of random numbers (just for
+  // starters, it's non-uniform), but it's good enough for us for now.
+  return min + rand() % (1 + max - min);
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_STATE_PLAY_H_

@@ -59,15 +59,18 @@ AZ_GUI_HEADERS := $(shell find $(SRCDIR)/milestone/gui -name '*.h')
 AZ_UTIL_HEADERS := $(shell find $(SRCDIR)/milestone/util -name '*.h') \
                    $(SRCDIR)/milestone/constants.h
 AZ_STATE_HEADERS := $(shell find $(SRCDIR)/milestone/state -name '*.h')
+AZ_TICK_HEADERS := $(shell find $(SRCDIR)/milestone/tick -name '*.h')
 AZ_VIEW_HEADERS := $(shell find $(SRCDIR)/milestone/view -name '*.h')
 
 AZ_GUI_C99FILES := $(shell find $(SRCDIR)/milestone/gui -name '*.c')
 AZ_UTIL_C99FILES := $(shell find $(SRCDIR)/milestone/util -name '*.c')
 AZ_STATE_C99FILES := $(shell find $(SRCDIR)/milestone/state -name '*.c')
+AZ_TICK_C99FILES := $(shell find $(SRCDIR)/milestone/tick -name '*.c')
 AZ_VIEW_C99FILES := $(shell find $(SRCDIR)/milestone/view -name '*.c')
 
-MAIN_C99FILES := $(AZ_UTIL_C99FILES) $(AZ_STATE_C99FILES) $(AZ_GUI_C99FILES) \
-	         $(AZ_VIEW_C99FILES) $(SRCDIR)/milestone/main.c
+MAIN_C99FILES := $(AZ_UTIL_C99FILES) $(AZ_STATE_C99FILES) $(AZ_TICK_C99FILES) \
+	         $(AZ_GUI_C99FILES) $(AZ_VIEW_C99FILES) \
+                 $(SRCDIR)/milestone/main.c
 
 MAIN_OBJFILES := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(MAIN_C99FILES)) \
                  $(SYSTEM_OBJFILES)
@@ -97,6 +100,10 @@ $(OBJDIR)/milestone/state/%.o: $(SRCDIR)/milestone/state/%.c \
     $(AZ_UTIL_HEADERS) $(AZ_STATE_HEADERS)
 	$(compile-c99)
 
+$(OBJDIR)/milestone/tick/%.o: $(SRCDIR)/milestone/tick/%.c \
+    $(AZ_UTIL_HEADERS) $(AZ_STATE_HEADERS) $(AZ_TICK_HEADERS)
+	$(compile-c99)
+
 $(OBJDIR)/milestone/gui/%.o: $(SRCDIR)/milestone/gui/%.c \
     $(AZ_UTIL_HEADERS) $(AZ_GUI_HEADERS)
 	$(compile-c99)
@@ -106,7 +113,8 @@ $(OBJDIR)/milestone/view/%.o: $(SRCDIR)/milestone/view/%.c \
 	$(compile-c99)
 
 $(OBJDIR)/milestone/main.o: $(SRCDIR)/milestone/main.c \
-    $(AZ_UTIL_HEADERS) $(AZ_STATE_HEADERS) $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
+    $(AZ_UTIL_HEADERS) $(AZ_STATE_HEADERS) $(AZ_TICK_HEADERS) \
+    $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
 	$(compile-c99)
 
 #=============================================================================#

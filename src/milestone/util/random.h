@@ -18,49 +18,22 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_STATE_PLAY_H_
-#define MILESTONE_STATE_PLAY_H_
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "milestone/util/vector.h"
+#ifndef MILESTONE_UTIL_RANDOM_H_
+#define MILESTONE_UTIL_RANDOM_H_
 
 /*===========================================================================*/
 
-#define AZ_MAX_NUM_TARGETS 200
-#define AZ_SECONDS_PER_WAVE 20.0
+// Call this once, at startup, to initialize the random number generator.
+void az_init_random(void);
 
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
-} az_target_kind_t;
+// Return a random double from min (inclusive) to max (exclusive).  max must
+// be greater than min, and both must be finite.
+double az_random(double min, double max);
 
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  int wave;
-} az_target_t;
-
-typedef struct {
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
-  int num_lives;
-  int current_wave;
-  int max_wave_on_board;
-  bool bonus_round;
-  double wave_time_remaining; // seconds
-  int64_t score;
-  az_target_t targets[AZ_MAX_NUM_TARGETS];
-} az_play_state_t;
+// Return a random integer in the (inclusive) range [min, max].  min must not
+// be greater than max.
+int az_randint(int min, int max);
 
 /*===========================================================================*/
 
-void az_init_play_state(az_play_state_t *state);
-
-int az_num_waves_at_once_for_wave(int wave);
-
-/*===========================================================================*/
-
-#endif // MILESTONE_STATE_PLAY_H_
+#endif // MILESTONE_UTIL_RANDOM_H_

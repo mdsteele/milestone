@@ -31,6 +31,13 @@ void az_init_play_state(az_play_state_t *state) {
   state->avatar_position.x = AZ_SCREEN_WIDTH / 2;
   state->avatar_position.y = AZ_SCREEN_HEIGHT / 2;
   state->avatar_velocity = AZ_VZERO;
+  state->num_lives = 3;
+}
+
+int az_num_waves_at_once_for_wave(int wave) {
+  if (wave >= 20) return 4;
+  else if (wave >= 10) return 3;
+  else return 2;
 }
 
 /*===========================================================================*/
