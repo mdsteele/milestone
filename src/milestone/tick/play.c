@@ -77,6 +77,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
   // Bounce off of baddies:
   AZ_ARRAY_LOOP(baddie, state->baddies) {
     if (baddie->kind == AZ_BAD_NOTHING) continue;
+    if (baddie->stun > 0.0) continue;
     if (az_vwithin(baddie->position, state->avatar_position,
                    AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS)) {
       const az_vector_t delta =
@@ -86,6 +87,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
       state->avatar_position =
         az_vadd(baddie->position,
                 az_vwithlen(delta, AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS));
+      baddie->stun = 2.5;
     }
   }
 

@@ -34,10 +34,13 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
   assert(baddie->kind != AZ_BAD_NOTHING);
 
   // Move the baddie:
-  az_vpluseq(&baddie->position, az_vmul(baddie->velocity, time));
+  az_vpluseq(&baddie->position,
+             az_vmul(baddie->velocity,
+                     time * (baddie->stun > 0.0 ? 0.5 : 1.0)));
   az_bounce_off_edges(&baddie->position, &baddie->velocity);
 
   baddie->cooldown = fmax(0.0, baddie->cooldown - time);
+  baddie->stun = fmax(0.0, baddie->stun - time);
 
   // Apply special logic for the baddie kind:
   switch (baddie->kind) {
@@ -56,7 +59,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         }
       }
       // Fire tank shells at the avatar.
-      if (baddie->cooldown <= 0.0) {
+      if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(delta, 600.0));
         baddie->cooldown = 2.0;
@@ -89,7 +92,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       baddie->velocity =
         az_vwithlen(goal_delta, fmin(100.0, 2.0 * az_vnorm(goal_delta)));
       // Fire at the avatar, firing faster when the avatar is nearer.
-      if (baddie->cooldown <= 0.0) {
+      if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
         const az_vector_t avatar_delta =
           az_vsub(state->avatar_position, baddie->position);
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
@@ -114,7 +117,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         }
       }
       // Fire stoppers at the avatar.
-      if (baddie->cooldown <= 0.0) {
+      if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
         const double proj_speed = 500.0;
         const az_vector_t rel_velocity =
           az_vsub(state->avatar_velocity, baddie->velocity);

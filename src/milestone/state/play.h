@@ -48,6 +48,7 @@ typedef struct {
   az_vector_t position;
   az_vector_t velocity;
   double cooldown; // seconds
+  double stun; // seconds
 } az_baddie_t;
 
 typedef enum {

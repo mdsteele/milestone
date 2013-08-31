@@ -33,6 +33,7 @@
 
 static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
   assert(baddie->kind != AZ_BAD_NOTHING);
+  if (baddie->stun > 0.0 && az_clock_mod(2, 2, clock)) return;
   switch (baddie->kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_TANK:
