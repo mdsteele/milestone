@@ -55,7 +55,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
               az_vsub(baddie->position, other->position), 20.0));
         }
       }
-      // Fire at the avatar.
+      // Fire tank shells at the avatar.
       if (baddie->cooldown <= 0.0) {
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(delta, 600.0));
@@ -95,6 +95,36 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(avatar_delta, 400.0));
         baddie->cooldown = 0.5 + fmin(1.5, az_vnorm(avatar_delta) / 400.0);
+      }
+    } break;
+    case AZ_BAD_BASILISK: {
+      // Seek towards the avatar, but away from other nearby baddies.
+      const az_vector_t delta =
+        az_vsub(state->avatar_position, baddie->position);
+      if (!az_vwithin(baddie->position, state->avatar_position, 100.0)) {
+        az_vpluseq(&baddie->velocity,
+                   az_vmul(delta, time * 150.0 / az_vnorm(delta)));
+      }
+      AZ_ARRAY_LOOP(other, state->baddies) {
+        if (other->kind == AZ_BAD_NOTHING) continue;
+        if (other == baddie) continue;
+        if (az_vwithin(baddie->position, other->position, 100.0)) {
+          az_vpluseq(&baddie->velocity, az_vwithlen(
+              az_vsub(baddie->position, other->position), 20.0));
+        }
+      }
+      // Fire stoppers at the avatar.
+      if (baddie->cooldown <= 0.0) {
+        const double proj_speed = 500.0;
+        const az_vector_t rel_velocity =
+          az_vsub(state->avatar_velocity, baddie->velocity);
+        az_vector_t rel_impact;
+        if (az_lead_target(delta, rel_velocity, proj_speed, &rel_impact)) {
+          az_add_projectile(
+              state, AZ_PROJ_STOPPER, baddie->position,
+              az_vadd(baddie->velocity, az_vwithlen(rel_impact, proj_speed)));
+          baddie->cooldown = 1.5;
+        }
       }
     } break;
   }

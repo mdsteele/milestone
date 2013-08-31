@@ -59,7 +59,7 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   --state->num_baddies_to_spawn;
 
   // TODO: pick a baddie kind based on wave
-  const az_baddie_kind_t kind = AZ_BAD_GUARD;
+  const az_baddie_kind_t kind = AZ_BAD_BASILISK;
 
   az_add_baddie(state, kind, pick_spawn_point(state));
 }

@@ -38,6 +38,7 @@ typedef enum {
   AZ_BAD_NOTHING = 0,
   AZ_BAD_TANK,
   AZ_BAD_GUARD,
+  AZ_BAD_BASILISK,
 } az_baddie_kind_t;
 
 typedef struct {
@@ -66,6 +67,7 @@ typedef enum {
   AZ_PROJ_BOMB,
   // Baddie projectiles:
   AZ_PROJ_TANK_SHELL,
+  AZ_PROJ_STOPPER,
 } az_proj_kind_t;
 
 typedef struct {

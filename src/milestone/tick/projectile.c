@@ -84,6 +84,13 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
         return true;
       }
       break;
+    case AZ_PROJ_STOPPER:
+      if (az_vwithin(proj->position, state->avatar_position,
+                     AZ_AVATAR_RADIUS)) {
+        state->avatar_velocity = az_vmul(state->avatar_velocity, 0.2);
+        return true;
+      }
+      break;
   }
 
   return false;

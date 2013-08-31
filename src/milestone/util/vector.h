@@ -99,6 +99,14 @@ double az_vdist(az_vector_t v1, az_vector_t v2);
 // Determine if two points are within the given distance of each other.
 bool az_vwithin(az_vector_t v1, az_vector_t v2, double dist);
 
+// Given the position and velocity of a target relative to the shooter, and the
+// speed of a projectile, determine if it's possible to fire the projectile
+// such that it will hit the target.  If so, store the position (relative to
+// the shooter) at which the projectile will hit the target in *rel_impact_out
+// (if rel_impact_out is non-NULL).
+bool az_lead_target(az_vector_t rel_position, az_vector_t rel_velocity,
+                    double proj_speed, az_vector_t *rel_impact_out);
+
 /*===========================================================================*/
 
 // Compute a mod b; b must be nonzero.  Note that this is _not_ the same as the

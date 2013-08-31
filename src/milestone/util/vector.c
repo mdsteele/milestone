@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 /*===========================================================================*/
 
@@ -147,6 +148,34 @@ bool az_vwithin(az_vector_t v1, az_vector_t v2, double dist) {
   assert(isfinite(dist));
   return ((v1.x - v2.x) * (v1.x - v2.x) +
           (v1.y - v2.y) * (v1.y - v2.y) <= dist * dist);
+}
+
+/*===========================================================================*/
+
+static bool solve_quadratic(double a, double b, double c,
+                            double *t1, double *t2) {
+  const double discriminant = b * b - 4.0 * a * c;
+  if (discriminant < 0.0) return false;
+  const double root = sqrt(discriminant);
+  *t1 = (-b + root) / (2.0 * a);
+  *t2 = (-b - root) / (2.0 * a);
+  return true;
+}
+
+bool az_lead_target(az_vector_t rel_position, az_vector_t rel_velocity,
+                    double proj_speed, az_vector_t *rel_impact_out) {
+  assert(proj_speed > 0.0);
+  double t1, t2;
+  if (!solve_quadratic(
+          az_vdot(rel_velocity, rel_velocity) - proj_speed * proj_speed,
+          2.0 * az_vdot(rel_position, rel_velocity),
+          az_vdot(rel_position, rel_position), &t1, &t2)) return false;
+  if (t1 < 0.0 && t2 < 0.0) return false;
+  if (rel_impact_out != NULL) {
+    const double t = (0.0 <= t1 && (t1 <= t2 || t2 < 0.0) ? t1 : t2);
+    *rel_impact_out = az_vadd(rel_position, az_vmul(rel_velocity, t));
+  }
+  return true;
 }
 
 /*===========================================================================*/

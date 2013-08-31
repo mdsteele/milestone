@@ -74,6 +74,16 @@ static void draw_projectile(const az_projectile_t *proj, az_clock_t clock) {
         }
       } glEnd();
       break;
+    case AZ_PROJ_STOPPER:
+      glRotatef(12 * az_clock_mod(30, 1, clock), 0, 0, 1);
+      glBegin(GL_TRIANGLES); {
+        glColor3f(0.3, 0.2, 0.3);
+        const double radius = 7.0;
+        for (int i = 0; i < 360; i += 120) {
+          glVertex2d(radius * cos(AZ_DEG2RAD(i)), radius * sin(AZ_DEG2RAD(i)));
+        }
+      } glEnd();
+      break;
   }
 }
 

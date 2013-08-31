@@ -53,6 +53,15 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
         }
       } glEnd();
       break;
+    case AZ_BAD_BASILISK:
+      glColor3f(0.5, 1.0, 0.25);
+      glBegin(GL_LINE_LOOP); {
+        glVertex2f(3, 10); glVertex2f(-3, 10);
+        glVertex2f(-10, 3); glVertex2f(-10, -3);
+        glVertex2f(-3, -10); glVertex2f(3, -10);
+        glVertex2f(10, -3); glVertex2f(10, 3);
+      } glEnd();
+      break;
   }
 }
 
