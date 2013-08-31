@@ -17,53 +17,56 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
+#pragma once
+#ifndef MILESTONE_GUI_EVENT_H_
+#define MILESTONE_GUI_EVENT_H_
+
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-#include <GL/gl.h>
-#include <SDL/SDL.h>
-
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#include "milestone/util/key.h"
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
-}
+typedef enum {
+  AZ_EVENT_KEY_DOWN,
+  AZ_EVENT_KEY_UP,
+  AZ_EVENT_MOUSE_DOWN,
+  AZ_EVENT_MOUSE_UP,
+  AZ_EVENT_MOUSE_MOVE
+} az_event_kind_t;
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+typedef union {
+  az_event_kind_t kind;
+  struct {
+    az_event_kind_t kind;
+    az_key_id_t id;
+    bool command; // true if Command/Ctrl (depending on OS) key is held
+    bool shift; // true if Shift key is held
+    int character; // unicode character
+  } key;
+  struct {
+    az_event_kind_t kind;
+    int x, y; // current mouse position
+    int dx, dy; // change in mouse position (for MOUSE_MOVE only)
+    bool pressed; // true if left mouse button is held
+  } mouse;
+} az_event_t;
 
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
+// Get the next event in the queue and return true, or return false if the
+// event queue is empty.
+bool az_poll_event(az_event_t *event);
 
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
-  }
+// Get the current position of the mouse in the window and return true, or
+// return false if the mouse is not currently in the window.
+bool az_get_mouse_position(int *x, int *y);
 
-  return EXIT_SUCCESS;
-}
+// Determine if the (left) mouse button is currently being held down.
+bool az_is_mouse_held(void);
+
+// Determine if a particular key is currently being held down.  The argument
+// must not be AZ_KEY_UNKNOWN.
+bool az_is_key_held(az_key_id_t key);
 
 /*===========================================================================*/
+
+#endif // MILESTONE_GUI_EVENT_H_

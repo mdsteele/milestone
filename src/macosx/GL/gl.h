@@ -17,53 +17,18 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#pragma once
+#ifndef MACOSX_GL_GL_H_
+#define MACOSX_GL_GL_H_
 
-#include <GL/gl.h>
-#include <SDL/SDL.h>
+// On other systems, the OpenGL headers are at <GL/gl.h>, but on Mac OS X
+// they're at <OpenGL/gl.h>.  So we use #include <GL/gl.h> in our source files,
+// and then for building on Mac we arrange for that to resolve to this file.
 
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#ifndef __APPLE__
+#error This file is only intended for building on Mac OS X.
+#endif
 
-/*===========================================================================*/
+#include <OpenGL/gl.h>
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
-}
-
-int main(int argc, char **argv) {
-  az_init_gui(false);
-
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
-
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
-  }
-
-  return EXIT_SUCCESS;
-}
-
-/*===========================================================================*/
+#endif // MACOSX_GL_GL_H_

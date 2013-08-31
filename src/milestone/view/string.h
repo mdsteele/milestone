@@ -17,53 +17,36 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#pragma once
+#ifndef MILESTONE_VIEW_STRING_H_
+#define MILESTONE_VIEW_STRING_H_
 
-#include <GL/gl.h>
-#include <SDL/SDL.h>
-
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#include <stddef.h> // for size_t
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
-}
+typedef enum {
+  AZ_ALIGN_LEFT,
+  AZ_ALIGN_CENTER,
+  AZ_ALIGN_RIGHT
+} az_alignment_t;
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+// Draw a (null-terminated) string.  You must set the current color before
+// calling this.
+void az_draw_string(double height, az_alignment_t align, double x, double top,
+                    const char *string);
 
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
+// Draw a sequence of characters (with an explicit length).  You must set the
+// current color before calling this.
+void az_draw_chars(double height, az_alignment_t align, double x, double top,
+                   const char *chars, size_t len);
 
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
-  }
-
-  return EXIT_SUCCESS;
-}
+// Draw a string based on a printf format string and args.  You must set the
+// current color before calling this.
+void az_draw_printf(double height, az_alignment_t align, double x, double top,
+                    const char *format, ...)
+  __attribute__((__format__(__printf__,5,6)));
 
 /*===========================================================================*/
+
+#endif // MILESTONE_VIEW_STRING_H_

@@ -45,17 +45,28 @@ endef
 OS_NAME := $(shell uname)
 ifeq "$(OS_NAME)" "Darwin"
   CFLAGS += -I$(SRCDIR)/macosx
-  MAIN_LIBFLAGS = -framework Cocoa -framework SDL
+  MAIN_LIBFLAGS = -framework Cocoa -framework OpenGL -framework SDL
   SYSTEM_OBJFILES = $(OBJDIR)/macosx/SDLMain.o
 else
-  MAIN_LIBFLAGS = -lSDL
+  MAIN_LIBFLAGS = -lGL -lSDL
   SYSTEM_OBJFILES =
 endif
 
 #=============================================================================#
 # Find all of the source files:
 
-MAIN_C99FILES := $(shell find $(SRCDIR)/milestone -name '*.c')
+AZ_GUI_HEADERS := $(shell find $(SRCDIR)/milestone/gui -name '*.h')
+AZ_UTIL_HEADERS := $(shell find $(SRCDIR)/milestone/util -name '*.h') \
+                   $(SRCDIR)/milestone/constants.h
+AZ_VIEW_HEADERS := $(shell find $(SRCDIR)/milestone/view -name '*.h')
+
+AZ_GUI_C99FILES := $(shell find $(SRCDIR)/milestone/gui -name '*.c')
+AZ_UTIL_C99FILES := $(shell find $(SRCDIR)/milestone/util -name '*.c')
+AZ_VIEW_C99FILES := $(shell find $(SRCDIR)/milestone/view -name '*.c')
+
+MAIN_C99FILES := $(AZ_UTIL_C99FILES) $(AZ_GUI_C99FILES) $(AZ_VIEW_C99FILES) \
+                 $(SRCDIR)/milestone/main.c
+
 MAIN_OBJFILES := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(MAIN_C99FILES)) \
                  $(SYSTEM_OBJFILES)
 
@@ -77,7 +88,19 @@ $(OBJDIR)/macosx/SDLMain.o: $(SRCDIR)/macosx/SDLMain.m \
 #=============================================================================#
 # Build rules for compiling non-system-specific code:
 
-$(OBJDIR)/milestone/%.o: $(SRCDIR)/milestone/%.c
+$(OBJDIR)/milestone/util/%.o: $(SRCDIR)/milestone/util/%.c $(AZ_UTIL_HEADERS)
+	$(compile-c99)
+
+$(OBJDIR)/milestone/gui/%.o: $(SRCDIR)/milestone/gui/%.c \
+    $(AZ_UTIL_HEADERS) $(AZ_GUI_HEADERS)
+	$(compile-c99)
+
+$(OBJDIR)/milestone/view/%.o: $(SRCDIR)/milestone/view/%.c \
+    $(AZ_UTIL_HEADERS) $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
+	$(compile-c99)
+
+$(OBJDIR)/milestone/main.o: $(SRCDIR)/milestone/main.c \
+    $(AZ_UTIL_HEADERS) $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
 	$(compile-c99)
 
 #=============================================================================#

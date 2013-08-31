@@ -17,53 +17,43 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include <stdbool.h>
+#include "milestone/util/misc.h"
+
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <GL/gl.h>
-#include <SDL/SDL.h>
-
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#include <string.h>
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
+void _az_zero_array(void *ptr, size_t n, size_t size) {
+  memset(ptr, 0, n * size);
 }
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+void _az_fatal(const char *funcname, const char *format, ...) {
+  va_list args;
+  fprintf(stderr, "Fatal error in %s: ", funcname);
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+  exit(EXIT_FAILURE);
+}
 
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
-
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
+void *_az_alloc(const char *funcname, size_t n, size_t size) {
+  if (n == 0) return NULL;
+  void *ptr = calloc(n, size);
+  if (ptr == NULL) {
+    _az_fatal(funcname, "Out of memory.\n");
   }
-
-  return EXIT_SUCCESS;
+  return ptr;
 }
+
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a) == 1);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b) == 2);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c) == 3);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c,d,e) == 5);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c,d,e,f,g,h) == 8);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c,d,e,f,g,h,i,j,k,l,m) == 13);
+AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) == 15);
 
 /*===========================================================================*/

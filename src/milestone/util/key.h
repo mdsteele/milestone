@@ -17,53 +17,76 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <GL/gl.h>
-#include <SDL/SDL.h>
-
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
+#pragma once
+#ifndef MILESTONE_UTIL_KEY_H_
+#define MILESTONE_UTIL_KEY_H_
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
-}
+typedef enum {
+  AZ_KEY_UNKNOWN = 0,
+  AZ_KEY_ESCAPE,
+  AZ_KEY_BACKTICK,
+  AZ_KEY_HYPHEN,
+  AZ_KEY_EQUALS,
+  AZ_KEY_BACKSPACE,
+  AZ_KEY_TAB,
+  AZ_KEY_LEFT_BRACKET,
+  AZ_KEY_RIGHT_BRACKET,
+  AZ_KEY_BACKSLASH,
+  AZ_KEY_SEMICOLON,
+  AZ_KEY_QUOTE,
+  AZ_KEY_RETURN,
+  AZ_KEY_COMMA,
+  AZ_KEY_PERIOD,
+  AZ_KEY_SLASH,
+  AZ_KEY_SPACE,
+  AZ_KEY_UP_ARROW,
+  AZ_KEY_DOWN_ARROW,
+  AZ_KEY_RIGHT_ARROW,
+  AZ_KEY_LEFT_ARROW,
+  AZ_KEY_0,
+  AZ_KEY_1,
+  AZ_KEY_2,
+  AZ_KEY_3,
+  AZ_KEY_4,
+  AZ_KEY_5,
+  AZ_KEY_6,
+  AZ_KEY_7,
+  AZ_KEY_8,
+  AZ_KEY_9,
+  AZ_KEY_A,
+  AZ_KEY_B,
+  AZ_KEY_C,
+  AZ_KEY_D,
+  AZ_KEY_E,
+  AZ_KEY_F,
+  AZ_KEY_G,
+  AZ_KEY_H,
+  AZ_KEY_I,
+  AZ_KEY_J,
+  AZ_KEY_K,
+  AZ_KEY_L,
+  AZ_KEY_M,
+  AZ_KEY_N,
+  AZ_KEY_O,
+  AZ_KEY_P,
+  AZ_KEY_Q,
+  AZ_KEY_R,
+  AZ_KEY_S,
+  AZ_KEY_T,
+  AZ_KEY_U,
+  AZ_KEY_V,
+  AZ_KEY_W,
+  AZ_KEY_X,
+  AZ_KEY_Y,
+  AZ_KEY_Z
+} az_key_id_t;
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+#define AZ_LAST_KEY_ID AZ_KEY_Z
 
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
-
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
-  }
-
-  return EXIT_SUCCESS;
-}
+const char *az_key_name(az_key_id_t key);
 
 /*===========================================================================*/
+
+#endif // MILESTONE_UTIL_KEY_H_

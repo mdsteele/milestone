@@ -17,53 +17,37 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
+#pragma once
+#ifndef MILESTONE_GUI_SCREEN_H_
+#define MILESTONE_GUI_SCREEN_H_
+
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <GL/gl.h>
-#include <SDL/SDL.h>
-
-#include "milestone/constants.h"
-#include "milestone/gui/event.h"
-#include "milestone/gui/screen.h"
-#include "milestone/view/string.h"
 
 /*===========================================================================*/
 
-static void draw_screen(void) {
-  glColor3f(1, 0, 0);
-  az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "Hello, world!");
-  glColor3f(0, 1, 0);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, 1);
-    glVertex2f(AZ_SCREEN_WIDTH - 1, AZ_SCREEN_HEIGHT - 1);
-    glVertex2f(1, AZ_SCREEN_HEIGHT - 1);
-  } glEnd();
-}
+typedef void (*az_init_func_t)(void);
 
-int main(int argc, char **argv) {
-  az_init_gui(false);
+// Register a function to be called each time OpenGL is (re)initialized, which
+// happens when calling az_init_gui and/or az_set_fullscreen.  Any calls made
+// to this function must be made _before_ calling az_init_gui.
+void az_register_gl_init_func(az_init_func_t func);
 
-  while (true) {
-    // Tick the state and redraw the screen.
-    az_start_screen_redraw(); {
-      draw_screen();
-    } az_finish_screen_redraw();
+// Initialize the GUI/window.  This should be called exactly once, at program
+// startup, before making any OpenGL calls.
+void az_init_gui(bool fullscreen);
 
-    // Get and process GUI events.
-    az_event_t event;
-    while (az_poll_event(&event)) {
-      switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return EXIT_SUCCESS;
-        default: break;
-      }
-    }
-  }
+// Query whether we are currently in full-screen mode.
+bool az_is_fullscreen(void);
 
-  return EXIT_SUCCESS;
-}
+// Set whether the GUI is full-screen or not.  This must not be called before
+// az_init_gui.
+void az_set_fullscreen(bool fullscreen);
+
+// Call this functions just before and just after drawing a frame to the screen
+// with OpenGL.
+void az_start_screen_redraw(void);
+void az_finish_screen_redraw(void);
 
 /*===========================================================================*/
+
+#endif // MILESTONE_GUI_SCREEN_H_
