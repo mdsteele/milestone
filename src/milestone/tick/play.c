@@ -197,4 +197,11 @@ void az_play_apply_mouse_click(az_play_state_t *state) {
                             az_vwithlen(state->avatar_velocity, 200.0)));
 }
 
+void az_play_apply_spacebar(az_play_state_t *state) {
+  if (state->num_bombs > 0) {
+    --state->num_bombs;
+    az_add_projectile(state, AZ_PROJ_BOMB, state->avatar_position, AZ_VZERO);
+  }
+}
+
 /*===========================================================================*/

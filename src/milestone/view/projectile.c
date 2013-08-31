@@ -24,6 +24,7 @@
 
 #include <GL/gl.h>
 
+#include "milestone/constants.h"
 #include "milestone/state/play.h"
 #include "milestone/util/clock.h"
 #include "milestone/util/misc.h"
@@ -43,6 +44,27 @@ static void draw_projectile(const az_projectile_t *proj, az_clock_t clock) {
         }
       } glEnd();
       break;
+    case AZ_PROJ_BOMB: {
+      const double outer = AZ_BOMB_MAX_RADIUS *
+        fmin(1.0, proj->age / AZ_BOMB_EXPAND_TIME);
+      const double inner = AZ_BOMB_MAX_RADIUS *
+        fmax(0.0, (proj->age - AZ_BOMB_EXPAND_TIME) / AZ_BOMB_EXPAND_TIME);
+      switch (az_clock_mod(6, 2, clock)) {
+        case 0: glColor4f(1, 0, 0, 0.5); break;
+        case 1: glColor4f(1, 1, 0, 0.5); break;
+        case 2: glColor4f(0, 1, 0, 0.5); break;
+        case 3: glColor4f(0, 1, 1, 0.5); break;
+        case 4: glColor4f(0, 0, 1, 0.5); break;
+        case 5: glColor4f(1, 0, 1, 0.5); break;
+      }
+      glBegin(GL_TRIANGLE_STRIP); {
+        for (int i = 0; i <= 360; i += 5) {
+          const double c = cos(AZ_DEG2RAD(i)), s = sin(AZ_DEG2RAD(i));
+          glVertex2d(inner * c, inner * s);
+          glVertex2d(outer * c, outer * s);
+        }
+      } glEnd();
+    } break;
     case AZ_PROJ_TANK_SHELL:
       glBegin(GL_TRIANGLE_FAN); {
         glColor3f(0.5, 0.5, 0.5); glVertex2f(0, 0); glColor3f(0, 0.5, 0);

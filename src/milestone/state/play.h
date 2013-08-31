@@ -60,7 +60,10 @@ typedef struct {
 
 typedef enum {
   AZ_PROJ_NOTHING = 0,
+  // Player projectiles:
   AZ_PROJ_BULLET,
+  AZ_PROJ_BOMB,
+  // Baddie projectiles:
   AZ_PROJ_TANK_SHELL,
 } az_proj_kind_t;
 
@@ -75,6 +78,7 @@ typedef struct {
   az_clock_t clock;
   // Player stats:
   int num_lives;
+  int num_bombs;
   int64_t score;
   // Wave:
   int current_wave;

@@ -20,6 +20,7 @@
 #include "milestone/tick/projectile.h"
 
 #include <assert.h>
+#include <math.h>
 
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
@@ -57,6 +58,25 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
         }
       }
       break;
+    case AZ_PROJ_BOMB: {
+      if (proj->age > 2.0 * AZ_BOMB_EXPAND_TIME) return true;
+      const double radius = AZ_BOMB_MAX_RADIUS *
+        fmin(1.0, proj->age / AZ_BOMB_EXPAND_TIME);
+      AZ_ARRAY_LOOP(target, state->targets) {
+        if (target->kind == AZ_TARG_NOTHING) continue;
+        if (target->kind == AZ_TARG_BONUS) continue;
+        if (target->wave <= state->current_wave &&
+            az_vwithin(target->position, proj->position, radius)) {
+          target->wave = state->current_wave + 1;
+        }
+      }
+      AZ_ARRAY_LOOP(baddie, state->baddies) {
+        if (baddie->kind == AZ_BAD_NOTHING) continue;
+        if (az_vwithin(baddie->position, proj->position, radius)) {
+          baddie->kind = AZ_BAD_NOTHING;
+        }
+      }
+    } break;
     case AZ_PROJ_TANK_SHELL:
       if (az_vwithin(proj->position, state->avatar_position,
                      AZ_AVATAR_RADIUS)) {

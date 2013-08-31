@@ -82,7 +82,10 @@ static az_mode_t run_play_mode(void) {
       switch (event.kind) {
         case AZ_EVENT_KEY_DOWN:
           if (event.key.id == AZ_KEY_ESCAPE) return GAMEOVER_MODE;
-          else break;
+          else if (event.key.id == AZ_KEY_SPACE) {
+            az_play_apply_spacebar(&play_state);
+          }
+          break;
         case AZ_EVENT_MOUSE_DOWN:
           az_play_apply_mouse_click(&play_state);
           break;

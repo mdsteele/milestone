@@ -31,6 +31,8 @@ void az_play_apply_mouse_motion(az_play_state_t *state, int dx, int dy);
 
 void az_play_apply_mouse_click(az_play_state_t *state);
 
+void az_play_apply_spacebar(az_play_state_t *state);
+
 /*===========================================================================*/
 
 #endif // MILESTONE_TICK_PLAY_H_

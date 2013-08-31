@@ -33,6 +33,7 @@ void az_init_play_state(az_play_state_t *state) {
   state->avatar_position.y = AZ_SCREEN_HEIGHT / 2;
   state->avatar_velocity = AZ_VZERO;
   state->num_lives = 3;
+  state->num_bombs = 3;
 }
 
 int az_num_waves_at_once_for_wave(int wave) {

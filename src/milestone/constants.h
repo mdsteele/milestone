@@ -40,6 +40,9 @@
 // Hit radius of baddies, in pixels:
 #define AZ_BADDIE_RADIUS 20
 
+#define AZ_BOMB_EXPAND_TIME 0.5
+#define AZ_BOMB_MAX_RADIUS 350
+
 /*===========================================================================*/
 
 #endif // MILESTONE_CONSTANTS_H_

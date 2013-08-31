@@ -49,16 +49,18 @@ static void set_color_for_wave(int wave) {
 void az_draw_play_screen(const az_play_state_t *state) {
   // Score bar:
   glColor3f(1, 1, 1);
-  az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
   az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 3,
                  "%08"PRId64, state->score);
   az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 10, 3,
-                 "Delays: %d", state->num_lives);
+                 "Bombs:%d Delays:%d", state->num_bombs, state->num_lives);
 
   // Timer bar:
   if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
     glColor3f(1, 1, 1);
-  } else set_color_for_wave(state->current_wave);
+  } else {
+    set_color_for_wave(state->current_wave);
+  }
+  az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
   glBegin(GL_TRIANGLE_STRIP); {
     const GLfloat left = 5.0f;
     const GLfloat right = left + (AZ_SCREEN_WIDTH - 10.0) *
