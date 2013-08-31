@@ -65,9 +65,12 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind == AZ_TARG_NOTHING) continue;
         if (target->kind == AZ_TARG_BONUS) continue;
-        if (target->wave <= state->current_wave &&
-            az_vwithin(target->position, proj->position, radius)) {
-          target->wave = state->current_wave + 1;
+        if (az_vwithin(target->position, proj->position, radius)) {
+          target->kind = AZ_TARG_NORMAL;
+          target->velocity = AZ_VZERO;
+          if (target->wave <= state->current_wave) {
+            target->wave = state->current_wave + 1;
+          }
         }
       }
       AZ_ARRAY_LOOP(baddie, state->baddies) {

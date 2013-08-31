@@ -60,7 +60,7 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   --state->num_baddies_to_spawn;
 
   // TODO: pick a baddie kind based on wave
-  const az_baddie_kind_t kind = AZ_BAD_GHOST;
+  const az_baddie_kind_t kind = AZ_BAD_TANK;
 
   az_add_baddie(state, kind, pick_spawn_point(state));
 }
@@ -145,12 +145,8 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
-        target->kind = AZ_TARG_BONUS;
-        target->wave = state->current_wave;
-        target->position.x =
-          az_random(AZ_BOARD_MIN_X + 10, AZ_BOARD_MAX_X - 10);
-        target->position.y =
-          az_random(AZ_BOARD_MIN_Y + 10, AZ_BOARD_MAX_Y - 10);
+        az_init_target_at_random_position(
+            target, AZ_TARG_BONUS, state->current_wave);
         --num_bonus_targets;
         if (num_bonus_targets <= 0) break;
       }
@@ -190,12 +186,9 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       int num_new_targets = 6 + 2 * sqrt(wave);
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
-        target->kind = AZ_TARG_NORMAL;
-        target->wave = wave;
-        target->position.x =
-          az_random(AZ_BOARD_MIN_X + 10, AZ_BOARD_MAX_X - 10);
-        target->position.y =
-          az_random(AZ_BOARD_MIN_Y + 10, AZ_BOARD_MAX_Y - 10);
+        az_target_kind_t kind = AZ_TARG_NORMAL;
+        if (az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
+        az_init_target_at_random_position(target, kind, wave);
         --num_new_targets;
         if (num_new_targets <= 0) break;
       }

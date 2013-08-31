@@ -72,7 +72,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   } glEnd();
 
   // Border:
-  set_color_for_wave(state->current_wave + 1, 1.0f);
+  set_color_for_wave(state->current_wave + (state->bonus_round ? 1 : 0), 1.0f);
   glBegin(GL_LINE_LOOP); {
     const GLfloat left = 1.5f;
     const GLfloat right = AZ_SCREEN_WIDTH - 1.5f;

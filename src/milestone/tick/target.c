@@ -32,12 +32,48 @@
 
 static void tick_target(az_play_state_t *state, az_target_t *target,
                         double time) {
+  // Update invisibility:
   if (target->is_invisible) {
     target->invisibility = fmin(1.0, target->invisibility + time / FADE_TIME);
   } else {
     target->invisibility = fmax(0.0, target->invisibility - time / FADE_TIME);
   }
   target->is_invisible = false;
+
+  // Update position:
+  az_vpluseq(&target->position, az_vmul(target->velocity, time));
+  az_bounce_off_edges(&target->position, &target->velocity);
+
+  // Update velocity:
+  const double old_speed = az_vnorm(target->velocity);
+  const double new_speed = fmax(0.0, old_speed - 10.0 * time);
+  target->velocity = az_vwithlen(target->velocity, new_speed);
+  AZ_ARRAY_LOOP(other, state->targets) {
+    if (other->kind == AZ_TARG_NOTHING) continue;
+    if (other == target) continue;
+    if (az_vwithin(target->position, other->position, 2 * AZ_TARGET_RADIUS)) {
+      az_vpluseq(&target->velocity,
+                 az_vwithlen(az_vsub(target->position, other->position),
+                             20.0 * time));
+    }
+  }
+  if (target->kind == AZ_TARG_REBEL) {
+    if (az_vwithin(state->avatar_position, target->position, 300.0)) {
+      az_vpluseq(&target->velocity,
+                 az_vwithlen(az_vsub(target->position, state->avatar_position),
+                             200.0 * time));
+    }
+    const az_vector_t goal = {
+      (state->avatar_position.x >= AZ_BOARD_CENTER_X ?
+       (AZ_BOARD_CENTER_X + AZ_BOARD_MIN_X) / 2 :
+       (AZ_BOARD_CENTER_X + AZ_BOARD_MAX_X) / 2),
+      (state->avatar_position.y >= AZ_BOARD_CENTER_Y ?
+       (AZ_BOARD_CENTER_Y + AZ_BOARD_MIN_Y) / 2 :
+       (AZ_BOARD_CENTER_Y + AZ_BOARD_MAX_Y) / 2)
+    };
+    az_vpluseq(&target->velocity,
+               az_vmul(az_vsub(goal, target->position), 0.5 * time));
+  }
 }
 
 void az_tick_targets(az_play_state_t *state, double time) {
