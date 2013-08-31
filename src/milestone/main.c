@@ -25,6 +25,7 @@
 #include <SDL/SDL.h>
 
 #include "milestone/constants.h"
+#include "milestone/gui/audio.h"
 #include "milestone/gui/event.h"
 #include "milestone/gui/screen.h"
 #include "milestone/state/play.h"
@@ -46,6 +47,7 @@ typedef enum {
 static az_mode_t run_title_mode(void) {
   while (true) {
     // Tick the state and redraw the screen.
+    az_tick_audio_mixer(&play_state.soundboard);
     az_start_screen_redraw(); {
       az_draw_title_screen();
     } az_finish_screen_redraw();
@@ -72,6 +74,7 @@ static az_mode_t run_play_mode(void) {
   while (true) {
     // Tick the state and redraw the screen.
     az_tick_play_state(&play_state, 1.0 / 60.0);
+    az_tick_audio_mixer(&play_state.soundboard);
     az_start_screen_redraw(); {
       az_draw_play_screen(&play_state);
     } az_finish_screen_redraw();

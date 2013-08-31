@@ -45,10 +45,11 @@ endef
 OS_NAME := $(shell uname)
 ifeq "$(OS_NAME)" "Darwin"
   CFLAGS += -I$(SRCDIR)/macosx
-  MAIN_LIBFLAGS = -framework Cocoa -framework OpenGL -framework SDL
+  MAIN_LIBFLAGS = -framework Cocoa -framework OpenGL \
+                  -framework SDL -framework SDL_mixer
   SYSTEM_OBJFILES = $(OBJDIR)/macosx/SDLMain.o
 else
-  MAIN_LIBFLAGS = -lGL -lSDL
+  MAIN_LIBFLAGS = -lGL -lSDL -lSDL_mixer
   SYSTEM_OBJFILES =
 endif
 

@@ -29,6 +29,7 @@
 #include "milestone/tick/particle.h"
 #include "milestone/tick/projectile.h"
 #include "milestone/tick/target.h"
+#include "milestone/util/audio.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/random.h"
 #include "milestone/util/vector.h"
@@ -99,13 +100,14 @@ static void tick_avatar(az_play_state_t *state, double time) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (az_vwithin(target->position, state->avatar_position,
                    AZ_AVATAR_RADIUS + AZ_TARGET_RADIUS)) {
+      // Determine the attributes of this target.
       int value = 250;
       double elasticity = 0.75;
       if (target->kind == AZ_TARG_BONUS) {
         value *= sqrt(target->wave);
         elasticity = 2.0;
       }
-
+      // Create particles for the target.
       const az_color_t color = az_target_color(target);
       for (int i = 0; i < 360; i += 5) {
         const az_vector_t unit = az_vpolar(1.0, az_random(0, AZ_TWO_PI));
@@ -115,8 +117,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
                         az_vmul(unit, elasticity * az_random(20, 150)),
                         az_random(2.0, 5.0));
       }
-
-
+      // Bounce the avatar and remove the target.
       const az_vector_t delta =
         az_vsub(state->avatar_position, target->position);
       target->kind = AZ_TARG_NOTHING;
@@ -124,6 +125,8 @@ static void tick_avatar(az_play_state_t *state, double time) {
       az_vpluseq(&state->avatar_velocity,
                  az_vmul(az_vproj(state->avatar_velocity, delta),
                          -(1.0 + elasticity)));
+      // Play a sound.
+      az_play_sound(&state->soundboard, AZ_SND_BREAK_TARGET);
     }
   }
 }
@@ -158,6 +161,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       ++state->current_wave;
     } else if (!state->bonus_round) {
       state->bonus_round = true;
+      az_play_sound(&state->soundboard, AZ_SND_BONUS_ROUND);
       int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind != AZ_TARG_NOTHING) continue;
@@ -173,6 +177,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   state->wave_time_remaining -= time;
   if (state->wave_time_remaining <= 0.0) {
     // Advance to the next wave:
+    az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);
     ++state->current_wave;
     state->wave_time_remaining = AZ_SECONDS_PER_WAVE;
     state->bonus_round = false;
@@ -228,12 +233,14 @@ void az_play_apply_mouse_click(az_play_state_t *state) {
   az_add_projectile(state, AZ_PROJ_BULLET, state->avatar_position,
                     az_vadd(state->avatar_velocity,
                             az_vwithlen(state->avatar_velocity, 200.0)));
+  az_play_sound(&state->soundboard, AZ_SND_FIRE_BULLET);
 }
 
 void az_play_apply_spacebar(az_play_state_t *state) {
   if (state->num_bombs > 0) {
     --state->num_bombs;
     az_add_projectile(state, AZ_PROJ_BOMB, state->avatar_position, AZ_VZERO);
+    az_play_sound(&state->soundboard, AZ_SND_FIRE_BOMB);
   }
 }
 

@@ -28,6 +28,21 @@
 
 /*===========================================================================*/
 
+static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie) {
+  assert(baddie->kind != AZ_BAD_NOTHING);
+  // TODO: particles for dead baddie
+  az_sound_key_t sound = AZ_SND_KILL_TANK;
+  switch (baddie->kind) {
+    case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_BAD_BASILISK: sound = AZ_SND_KILL_BASILISK; break;
+    case AZ_BAD_GHOST: sound = AZ_SND_KILL_TANK; break; // TODO
+    case AZ_BAD_GUARD: sound = AZ_SND_KILL_GUARD; break;
+    case AZ_BAD_TANK: sound = AZ_SND_KILL_TANK; break;
+  }
+  az_play_sound(&state->soundboard, sound);
+  baddie->kind = AZ_BAD_NOTHING;
+}
+
 // Return true if projectile should disappear.
 static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
                             double time) {
@@ -53,7 +68,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(baddie, state->baddies) {
         if (baddie->kind == AZ_BAD_NOTHING) continue;
         if (az_vwithin(baddie->position, proj->position, AZ_BADDIE_RADIUS)) {
-          baddie->kind = AZ_BAD_NOTHING;
+          kill_baddie(state, baddie);
           return true;
         }
       }
@@ -76,7 +91,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(baddie, state->baddies) {
         if (baddie->kind == AZ_BAD_NOTHING) continue;
         if (az_vwithin(baddie->position, proj->position, radius)) {
-          baddie->kind = AZ_BAD_NOTHING;
+          kill_baddie(state, baddie);
         }
       }
     } break;
@@ -84,6 +99,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       if (az_vwithin(proj->position, state->avatar_position,
                      AZ_AVATAR_RADIUS)) {
         az_vpluseq(&state->avatar_velocity, az_vmul(proj->velocity, 0.5));
+        az_play_sound(&state->soundboard, AZ_SND_HIT_TANK_SHELL);
         return true;
       }
       break;

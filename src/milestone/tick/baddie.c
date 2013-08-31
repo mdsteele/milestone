@@ -62,6 +62,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(delta, 600.0));
+        az_play_sound(&state->soundboard, AZ_SND_FIRE_TANK_SHELL);
         baddie->cooldown = 2.0;
       }
     } break;
@@ -97,6 +98,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
           az_vsub(state->avatar_position, baddie->position);
         az_add_projectile(state, AZ_PROJ_TANK_SHELL, baddie->position,
                           az_vwithlen(avatar_delta, 400.0));
+        az_play_sound(&state->soundboard, AZ_SND_FIRE_TANK_SHELL);
         baddie->cooldown = 0.5 + fmin(1.5, az_vnorm(avatar_delta) / 400.0);
       }
     } break;
@@ -126,6 +128,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
           az_add_projectile(
               state, AZ_PROJ_STOPPER, baddie->position,
               az_vadd(baddie->velocity, az_vwithlen(rel_impact, proj_speed)));
+          az_play_sound(&state->soundboard, AZ_SND_FIRE_STOPPER);
           baddie->cooldown = 1.5;
         }
       }

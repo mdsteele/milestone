@@ -26,6 +26,7 @@
 
 #include "milestone/state/particle.h"
 #include "milestone/state/target.h"
+#include "milestone/util/audio.h"
 #include "milestone/util/clock.h"
 #include "milestone/util/vector.h"
 
@@ -72,6 +73,7 @@ typedef struct {
 
 typedef struct {
   az_clock_t clock;
+  az_soundboard_t soundboard;
   // Player stats:
   int num_lives;
   int num_bombs;

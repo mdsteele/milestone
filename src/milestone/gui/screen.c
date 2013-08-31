@@ -26,6 +26,7 @@
 #include <SDL/SDL.h>
 
 #include "milestone/constants.h"
+#include "milestone/gui/audio.h"
 #include "milestone/util/misc.h"
 
 /*===========================================================================*/
@@ -57,10 +58,11 @@ void az_register_gl_init_func(az_init_func_t func) {
 
 void az_init_gui(bool fullscreen) {
   assert(!sdl_initialized);
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
     AZ_FATAL("SDL_Init failed.\n");
   }
   atexit(SDL_Quit);
+  az_init_audio_mixer();
   SDL_WM_SetCaption("Milestone (press " CMD_KEY_NAME "-M to run full-screen)",
                     "Milestone");
   sdl_initialized = true;
@@ -78,6 +80,7 @@ void az_set_fullscreen(bool fullscreen) {
   assert(sdl_initialized);
   if (display_initialized && fullscreen == currently_fullscreen) return;
   currently_fullscreen = fullscreen;
+  az_pause_all_audio();
   // Enable OpenGL double-buffering:
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   // Enable vsync:
@@ -136,6 +139,7 @@ void az_set_fullscreen(bool fullscreen) {
   }
 
   display_initialized = true;
+  az_unpause_all_audio();
 }
 
 void az_start_screen_redraw(void) {
