@@ -18,52 +18,21 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_STATE_PLAY_H_
-#define MILESTONE_STATE_PLAY_H_
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "milestone/util/clock.h"
-#include "milestone/util/vector.h"
+#ifndef MILESTONE_UTIL_CLOCK_H_
+#define MILESTONE_UTIL_CLOCK_H_
 
 /*===========================================================================*/
 
-#define AZ_MAX_NUM_TARGETS 200
-#define AZ_SECONDS_PER_WAVE 20.0
+typedef unsigned long az_clock_t;
 
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_BONUS,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
-} az_target_kind_t;
+// Return a number that cycles from zero up to (modulus - 1), with the number
+// advancing by one for every `slowdown` ticks of the clock.
+int az_clock_mod(int modulus, int slowdown, az_clock_t clock);
 
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  int wave;
-} az_target_t;
-
-typedef struct {
-  az_clock_t clock;
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
-  int num_lives;
-  int current_wave;
-  int max_wave_on_board;
-  bool bonus_round;
-  double wave_time_remaining; // seconds
-  int64_t score;
-  az_target_t targets[AZ_MAX_NUM_TARGETS];
-} az_play_state_t;
+// Return a number that cycles from zero up to (modulus - 1) and back down
+// again, with the number advancing by one every `slowdown` ticks of the clock.
+int az_clock_zigzag(int modulus, int slowdown, az_clock_t clock);
 
 /*===========================================================================*/
 
-void az_init_play_state(az_play_state_t *state);
-
-int az_num_waves_at_once_for_wave(int wave);
-
-/*===========================================================================*/
-
-#endif // MILESTONE_STATE_PLAY_H_
+#endif // MILESTONE_UTIL_CLOCK_H_

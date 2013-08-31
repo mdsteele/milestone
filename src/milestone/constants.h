@@ -27,6 +27,12 @@
 #define AZ_SCREEN_WIDTH  800
 #define AZ_SCREEN_HEIGHT 500
 
+// The bounds of the board:
+#define AZ_BOARD_MIN_X 1
+#define AZ_BOARD_MAX_X (AZ_SCREEN_WIDTH - 1)
+#define AZ_BOARD_MIN_Y 21
+#define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
+
 /*===========================================================================*/
 
 #endif // MILESTONE_CONSTANTS_H_

@@ -19,6 +19,7 @@
 
 #include "milestone/tick/play.h"
 
+#include <math.h>
 #include <stdbool.h>
 
 #include "milestone/constants.h"
@@ -31,11 +32,40 @@
 
 #define AZ_AVATAR_RADIUS 20.0
 
+#define EDGE_ELASTICITY 0.5
+
 void az_tick_play_state(az_play_state_t *state, double time) {
+  ++state->clock;
+
   // Move avatar:
   state->avatar_velocity = az_vcaplen(state->avatar_velocity, 500.0);
   az_vpluseq(&state->avatar_position,
              az_vmul(state->avatar_velocity, time));
+  // Bounce off edges of board:
+  if (state->avatar_position.x < AZ_BOARD_MIN_X) {
+    state->avatar_position.x = AZ_BOARD_MIN_X;
+    if (state->avatar_velocity.x < 0) {
+      state->avatar_velocity.x = -EDGE_ELASTICITY * state->avatar_velocity.x;
+    }
+  }
+  if (state->avatar_position.x > AZ_BOARD_MAX_X) {
+    state->avatar_position.x = AZ_BOARD_MAX_X;
+    if (state->avatar_velocity.x > 0) {
+      state->avatar_velocity.x = -EDGE_ELASTICITY * state->avatar_velocity.x;
+    }
+  }
+  if (state->avatar_position.y < AZ_BOARD_MIN_Y) {
+    state->avatar_position.y = AZ_BOARD_MIN_Y;
+    if (state->avatar_velocity.y < 0) {
+      state->avatar_velocity.y = -EDGE_ELASTICITY * state->avatar_velocity.y;
+    }
+  }
+  if (state->avatar_position.y > AZ_BOARD_MAX_Y) {
+    state->avatar_position.y = AZ_BOARD_MAX_Y;
+    if (state->avatar_velocity.y > 0) {
+      state->avatar_velocity.y = -EDGE_ELASTICITY * state->avatar_velocity.y;
+    }
+  }
 
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {
@@ -48,14 +78,37 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   }
 
   // If all of this wave's targets are collected, go to the bonus round.
-  int targets_remaining = 0;
+  int current_wave_targets_remaining = 0;
+  int next_wave_targets_remaining = 0;
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
-    if (target->wave <= state->current_wave) ++targets_remaining;
+    if (target->kind == AZ_TARG_BONUS) continue;
+    if (target->wave <= state->current_wave) {
+      ++current_wave_targets_remaining;
+    } else if (target->wave == state->current_wave + 1) {
+      ++next_wave_targets_remaining;
+    }
   }
-  if (targets_remaining == 0) {
-    state->bonus_round = true;
-    // TODO: add bonus targets
+  if (state->current_wave > 0 && current_wave_targets_remaining == 0) {
+    if (next_wave_targets_remaining == 0) {
+      ++state->num_lives;
+      state->wave_time_remaining = 0.0;
+      ++state->current_wave;
+    } else if (!state->bonus_round) {
+      state->bonus_round = true;
+      int num_bonus_targets = 8 + state->current_wave / 2;
+      AZ_ARRAY_LOOP(target, state->targets) {
+        if (target->kind != AZ_TARG_NOTHING) continue;
+        target->kind = AZ_TARG_BONUS;
+        target->wave = state->current_wave;
+        target->position.x =
+          az_random(AZ_BOARD_MIN_X + 10, AZ_BOARD_MAX_X - 10);
+        target->position.y =
+          az_random(AZ_BOARD_MIN_Y + 10, AZ_BOARD_MAX_Y - 10);
+        --num_bonus_targets;
+        if (num_bonus_targets <= 0) break;
+      }
+    }
   }
 
   // Check for wave being over:
@@ -68,7 +121,9 @@ void az_tick_play_state(az_play_state_t *state, double time) {
     bool delayed = false;
     AZ_ARRAY_LOOP(target, state->targets) {
       if (target->kind == AZ_TARG_NOTHING) continue;
-      if (target->wave < state->current_wave) {
+      if (target->kind == AZ_TARG_BONUS) {
+        target->kind = AZ_TARG_NOTHING;
+      } else if (target->wave < state->current_wave) {
         target->wave = state->current_wave;
         delayed = true;
       }
@@ -86,8 +141,10 @@ void az_tick_play_state(az_play_state_t *state, double time) {
         if (target->kind != AZ_TARG_NOTHING) continue;
         target->kind = AZ_TARG_RUN_OVER;
         target->wave = wave;
-        target->position.x = az_random(10, AZ_SCREEN_WIDTH - 10);
-        target->position.y = az_random(30, AZ_SCREEN_HEIGHT - 30);
+        target->position.x =
+          az_random(AZ_BOARD_MIN_X + 10, AZ_BOARD_MAX_X - 10);
+        target->position.y =
+          az_random(AZ_BOARD_MIN_Y + 10, AZ_BOARD_MAX_Y - 10);
         --num_new_targets;
         if (num_new_targets <= 0) break;
       }

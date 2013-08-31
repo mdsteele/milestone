@@ -37,10 +37,10 @@ static void set_color_for_wave(int wave) {
   switch (wave % 6) {
     case 0: glColor3f(1, 0, 1); break;
     case 1: glColor3f(1, 1, 0); break;
-    case 2: glColor3f(0, 1, 1); break;
-    case 3: glColor3f(0, 1, 0); break;
+    case 2: glColor3f(0, 0.8, 0.8); break;
     case 4: glColor3f(1, 0, 0); break;
-    case 5: glColor3f(0, 0, 1); break;
+    case 5: glColor3f(0.25, 0.25, 1); break;
+    case 3: glColor3f(0, 0.75, 0); break;
   }
 }
 
@@ -54,7 +54,9 @@ void az_draw_play_screen(const az_play_state_t *state) {
                  "Delays: %d", state->num_lives);
 
   // Timer bar:
-  set_color_for_wave(state->current_wave);
+  if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
+    glColor3f(1, 1, 1);
+  } else set_color_for_wave(state->current_wave);
   glBegin(GL_TRIANGLE_STRIP); {
     const GLfloat left = 5.0f;
     const GLfloat right = left + (AZ_SCREEN_WIDTH - 10.0) *
@@ -81,7 +83,8 @@ void az_draw_play_screen(const az_play_state_t *state) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     glPushMatrix(); {
       glTranslated(target->position.x, target->position.y, 0);
-      set_color_for_wave(target->wave);
+      if (target->kind == AZ_TARG_BONUS) glColor3f(1, 1, 1);
+      else set_color_for_wave(target->wave);
       glBegin(GL_LINE_LOOP); {
         glVertex2f(8, 8); glVertex2f(-8, 8);
         glVertex2f(-8, -8); glVertex2f(8, -8);

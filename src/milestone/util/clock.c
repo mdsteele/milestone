@@ -17,53 +17,22 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_STATE_PLAY_H_
-#define MILESTONE_STATE_PLAY_H_
-
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "milestone/util/clock.h"
-#include "milestone/util/vector.h"
+
+#include <assert.h>
 
 /*===========================================================================*/
 
-#define AZ_MAX_NUM_TARGETS 200
-#define AZ_SECONDS_PER_WAVE 20.0
+int az_clock_mod(int modulus, int slowdown, az_clock_t clock) {
+  assert(modulus > 0);
+  assert(slowdown > 0);
+  return (clock % (modulus * slowdown)) / slowdown;
+}
 
-typedef enum {
-  AZ_TARG_NOTHING = 0,
-  AZ_TARG_BONUS,
-  AZ_TARG_RUN_OVER,
-  AZ_TARG_SHOOT
-} az_target_kind_t;
-
-typedef struct {
-  az_target_kind_t kind;
-  az_vector_t position;
-  int wave;
-} az_target_t;
-
-typedef struct {
-  az_clock_t clock;
-  az_vector_t avatar_position;
-  az_vector_t avatar_velocity;
-  int num_lives;
-  int current_wave;
-  int max_wave_on_board;
-  bool bonus_round;
-  double wave_time_remaining; // seconds
-  int64_t score;
-  az_target_t targets[AZ_MAX_NUM_TARGETS];
-} az_play_state_t;
+int az_clock_zigzag(int modulus, int slowdown, az_clock_t clock) {
+  const int m = modulus - 1;
+  const int d = az_clock_mod(2 * m, slowdown, clock);
+  return (d <= m ? d : 2 * m - d);
+}
 
 /*===========================================================================*/
-
-void az_init_play_state(az_play_state_t *state);
-
-int az_num_waves_at_once_for_wave(int wave);
-
-/*===========================================================================*/
-
-#endif // MILESTONE_STATE_PLAY_H_

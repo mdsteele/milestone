@@ -78,8 +78,9 @@ static az_mode_t run_play_mode(void) {
     az_event_t event;
     while (az_poll_event(&event)) {
       switch (event.kind) {
-        case AZ_EVENT_MOUSE_DOWN:
-          return GAMEOVER_MODE;
+        case AZ_EVENT_KEY_DOWN:
+          if (event.key.id == AZ_KEY_ESCAPE) return GAMEOVER_MODE;
+          else break;
         case AZ_EVENT_MOUSE_MOVE: {
           const az_vector_t delta = {event.mouse.x - 400, event.mouse.y - 250};
           az_vpluseq(&play_state.avatar_velocity, az_vmul(delta, 0.5));
