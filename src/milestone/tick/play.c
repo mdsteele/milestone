@@ -133,6 +133,54 @@ static void tick_avatar(az_play_state_t *state, double time) {
 
 /*===========================================================================*/
 
+void begin_wave(az_play_state_t *state, bool skip) {
+  state->wave_time_remaining = AZ_SECONDS_PER_WAVE;
+  state->bonus_round = false;
+
+  // Move any targets from the previous wave to this one, and lose a life if
+  // there are any such targets:
+  bool delayed = false;
+  AZ_ARRAY_LOOP(target, state->targets) {
+    if (target->kind == AZ_TARG_NOTHING) continue;
+    if (target->kind == AZ_TARG_BONUS) {
+      target->kind = AZ_TARG_NOTHING;
+    } else if (target->wave < state->current_wave) {
+      target->wave = state->current_wave;
+      delayed = true;
+    }
+  }
+  if (skip) {
+    assert(!delayed);
+  } else if (delayed) {
+    --state->num_lives;
+    // TODO: check for game over
+    az_play_sound(&state->soundboard, AZ_SND_LOSE_LIFE);
+  } else az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);
+
+  // Add new targets:
+  const int new_max_wave_on_board = state->current_wave +
+    az_num_waves_at_once_for_wave(state->current_wave) - 1;
+  for (int wave = state->max_wave_on_board + 1;
+       wave <= new_max_wave_on_board; ++wave) {
+    int num_new_targets = 6 + 2 * sqrt(wave);
+    AZ_ARRAY_LOOP(target, state->targets) {
+      if (target->kind != AZ_TARG_NOTHING) continue;
+      az_target_kind_t kind = AZ_TARG_NORMAL;
+      if (az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
+      az_init_target_at_random_position(target, kind, wave);
+      --num_new_targets;
+      if (num_new_targets <= 0) break;
+    }
+  }
+  state->max_wave_on_board = new_max_wave_on_board;
+
+  // Prepare for spawning baddies:
+  state->num_baddies_to_spawn = state->current_wave / 2;
+  state->spawn_cooldown = 1.2;
+}
+
+/*===========================================================================*/
+
 void az_tick_play_state(az_play_state_t *state, double time) {
   ++state->clock;
   az_tick_particles(state, time);
@@ -158,7 +206,9 @@ void az_tick_play_state(az_play_state_t *state, double time) {
     if (next_wave_targets_remaining == 0) {
       ++state->num_lives;
       state->wave_time_remaining = 0.0;
-      ++state->current_wave;
+      state->current_wave += 2;
+      az_play_sound(&state->soundboard, AZ_SND_GAIN_LIFE);
+      begin_wave(state, true);
     } else if (!state->bonus_round) {
       state->bonus_round = true;
       az_play_sound(&state->soundboard, AZ_SND_BONUS_ROUND);
@@ -176,49 +226,8 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   // Check for wave being over:
   state->wave_time_remaining -= time;
   if (state->wave_time_remaining <= 0.0) {
-    // Advance to the next wave:
-    az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);
     ++state->current_wave;
-    state->wave_time_remaining = AZ_SECONDS_PER_WAVE;
-    state->bonus_round = false;
-
-    // Move any targets from the previous wave to this one, and lose a life if
-    // there are any such targets:
-    bool delayed = false;
-    AZ_ARRAY_LOOP(target, state->targets) {
-      if (target->kind == AZ_TARG_NOTHING) continue;
-      if (target->kind == AZ_TARG_BONUS) {
-        target->kind = AZ_TARG_NOTHING;
-      } else if (target->wave < state->current_wave) {
-        target->wave = state->current_wave;
-        delayed = true;
-      }
-    }
-    if (delayed) {
-      --state->num_lives;
-      // TODO: check for game over
-    }
-
-    // Add new targets:
-    const int new_max_wave_on_board = state->current_wave +
-      az_num_waves_at_once_for_wave(state->current_wave) - 1;
-    for (int wave = state->max_wave_on_board + 1;
-         wave <= new_max_wave_on_board; ++wave) {
-      int num_new_targets = 6 + 2 * sqrt(wave);
-      AZ_ARRAY_LOOP(target, state->targets) {
-        if (target->kind != AZ_TARG_NOTHING) continue;
-        az_target_kind_t kind = AZ_TARG_NORMAL;
-        if (az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
-        az_init_target_at_random_position(target, kind, wave);
-        --num_new_targets;
-        if (num_new_targets <= 0) break;
-      }
-    }
-    state->max_wave_on_board = new_max_wave_on_board;
-
-    // Prepare for spawning baddies:
-    state->num_baddies_to_spawn = state->current_wave / 2;
-    state->spawn_cooldown = 1.2;
+    begin_wave(state, false);
   }
 }
 
