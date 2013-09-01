@@ -39,9 +39,9 @@
 
 #define STATUS_HEIGHT 20
 
-static void set_color_for_wave(int wave, double alpha) {
+static void set_color_for_wave(int wave) {
   const az_color_t color = az_color_for_wave(wave);
-  glColor4ub(color.r, color.g, color.b, alpha * color.a);
+  glColor4ub(color.r, color.g, color.b, color.a);
 }
 
 static void draw_avatar(const az_play_state_t *state) {
@@ -64,13 +64,58 @@ static void flash_screen(az_color_t color, double alpha) {
   } glEnd();
 }
 
+static void draw_hud(const az_play_state_t *state) {
+  // Score bar:
+  if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
+    glColor3f(1, 1, 1);
+  } else set_color_for_wave(state->current_wave);
+  az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
+  glColor3f(1, 1, 1);
+  az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 3,
+                 "%08"PRId64, state->score);
+  az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 10, 3,
+                 "Bombs:%d Delays:%d", state->num_bombs, state->num_lives);
+
+  // Timer bar:
+  glBegin(GL_TRIANGLE_STRIP); {
+    az_color_t color = {255, 255, 255, 255};
+    if (!state->bonus_round || az_clock_mod(2, 2, state->clock)) {
+      color = az_color_for_wave(state->current_wave);
+    }
+    const GLfloat left = 2.0f;
+    const GLfloat right = left + (AZ_SCREEN_WIDTH - 2 * left) *
+      (state->wave_time_remaining / AZ_SECONDS_PER_WAVE);
+    const GLfloat top = AZ_SCREEN_HEIGHT - STATUS_HEIGHT + 3.0f;
+    const GLfloat bottom = AZ_SCREEN_HEIGHT - 3.0f;
+    const GLfloat mid = (top + bottom) * 0.5f;
+    glColor4ub(color.r, color.g, color.b, 0.5 * color.a);
+    glVertex2f(left, top); glVertex2f(right, top);
+    glColor4ub(color.r, color.g, color.b, color.a);
+    glVertex2f(left, mid); glVertex2f(right, mid);
+    glColor4ub(color.r, color.g, color.b, 0.5 * color.a);
+    glVertex2f(left, bottom); glVertex2f(right, bottom);
+  } glEnd();
+
+  // Border:
+  set_color_for_wave(state->current_wave + (state->bonus_round ? 1 : 0));
+  glBegin(GL_LINE_LOOP); {
+    const GLfloat left = 1.5f;
+    const GLfloat right = AZ_SCREEN_WIDTH - 1.5f;
+    const GLfloat top = STATUS_HEIGHT + 0.5f;
+    const GLfloat bottom = AZ_SCREEN_HEIGHT - STATUS_HEIGHT - 0.5f;
+    glVertex2f(left, top); glVertex2f(right, top);
+    glVertex2f(right, bottom); glVertex2f(left, bottom);
+  } glEnd();
+}
+
+/*===========================================================================*/
+
 void az_draw_play_screen(const az_play_state_t *state) {
   az_draw_targets(state);
   az_draw_baddies(state);
   az_draw_projectiles(state);
   draw_avatar(state);
   az_draw_particles(state);
-
   if (state->gained_life_flash > 0.0) {
     flash_screen((az_color_t){255, 255, 255, 128}, state->gained_life_flash);
   }
@@ -80,41 +125,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   if (state->bonus_flash > 0.0) {
     flash_screen((az_color_t){255, 255, 128, 64}, state->bonus_flash);
   }
-
-  // Score bar:
-  glColor3f(1, 1, 1);
-  az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 3,
-                 "%08"PRId64, state->score);
-  az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 10, 3,
-                 "Bombs:%d Delays:%d", state->num_bombs, state->num_lives);
-
-  // Timer bar:
-  if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
-    glColor3f(1, 1, 1);
-  } else {
-    set_color_for_wave(state->current_wave, 1);
-  }
-  az_draw_printf(16, AZ_ALIGN_LEFT, 10, 3, "Wave %d", state->current_wave);
-  glBegin(GL_TRIANGLE_STRIP); {
-    const GLfloat left = 5.0f;
-    const GLfloat right = left + (AZ_SCREEN_WIDTH - 10.0) *
-      (state->wave_time_remaining / AZ_SECONDS_PER_WAVE);
-    const GLfloat top = AZ_SCREEN_HEIGHT - STATUS_HEIGHT + 3.0f;
-    const GLfloat bottom = AZ_SCREEN_HEIGHT - 3.0f;
-    glVertex2f(left, top); glVertex2f(right, top);
-    glVertex2f(left, bottom); glVertex2f(right, bottom);
-  } glEnd();
-
-  // Border:
-  set_color_for_wave(state->current_wave + (state->bonus_round ? 1 : 0), 1);
-  glBegin(GL_LINE_LOOP); {
-    const GLfloat left = 1.5f;
-    const GLfloat right = AZ_SCREEN_WIDTH - 1.5f;
-    const GLfloat top = STATUS_HEIGHT + 0.5f;
-    const GLfloat bottom = AZ_SCREEN_HEIGHT - STATUS_HEIGHT - 0.5f;
-    glVertex2f(left, top); glVertex2f(right, top);
-    glVertex2f(right, bottom); glVertex2f(left, bottom);
-  } glEnd();
+  draw_hud(state);
 }
 
 /*===========================================================================*/
