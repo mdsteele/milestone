@@ -46,9 +46,11 @@ void az_draw_title_screen(const az_title_state_t *state) {
   az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
                  "Click mouse to start");
   // High scores:
-  glColor3f(0.5, 0.5, 0.5);
   int top = 400;
   AZ_ARRAY_LOOP(entry, state->highscore_list->entries) {
+    if (entry == state->last_game && az_clock_mod(2, 3, state->clock)) {
+      glColor3f(1, 1, 0);
+    } else glColor3f(0.5, 0.5, 0.5);
     az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top,
                    "%20s %3d  %08"PRId64,
                    (entry->name == NULL ? "--------------------" :

@@ -31,10 +31,12 @@ typedef struct {
   az_clock_t clock;
   az_soundboard_t soundboard;
   const az_highscore_list_t *highscore_list;
+  const az_highscore_t *last_game;
 } az_title_state_t;
 
 void az_init_title_state(az_title_state_t *state,
-                         const az_highscore_list_t *highscore_list);
+                         const az_highscore_list_t *highscore_list,
+                         const az_highscore_t *last_game);
 
 /*===========================================================================*/
 

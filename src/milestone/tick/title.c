@@ -17,18 +17,14 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include "milestone/state/title.h"
+#include "milestone/tick/title.h"
 
-#include <string.h>
+#include "milestone/state/title.h"
 
 /*===========================================================================*/
 
-void az_init_title_state(az_title_state_t *state,
-                         const az_highscore_list_t *highscore_list,
-                         const az_highscore_t *last_game) {
-  memset(state, 0, sizeof(*state));
-  state->highscore_list = highscore_list;
-  state->last_game = last_game;
+void az_tick_title_state(az_title_state_t *state, double time) {
+  ++state->clock;
 }
 
 /*===========================================================================*/

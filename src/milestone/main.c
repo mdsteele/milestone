@@ -33,6 +33,7 @@
 #include "milestone/state/play.h"
 #include "milestone/system/resource.h"
 #include "milestone/tick/play.h"
+#include "milestone/tick/title.h"
 #include "milestone/util/random.h"
 #include "milestone/view/gameover.h"
 #include "milestone/view/play.h"
@@ -41,6 +42,7 @@
 /*===========================================================================*/
 
 static az_highscore_list_t highscore_list;
+static az_highscore_t *last_game = NULL;
 static az_title_state_t title_state;
 static az_play_state_t play_state;
 static az_gameover_state_t gameover_state;
@@ -78,10 +80,11 @@ typedef enum {
 } az_mode_t;
 
 static az_mode_t run_title_mode(void) {
-  az_init_title_state(&title_state, &highscore_list);
+  az_init_title_state(&title_state, &highscore_list, last_game);
 
   while (true) {
     // Tick the state and redraw the screen.
+    az_tick_title_state(&title_state, 1.0 / 60.0);
     az_tick_audio_mixer(&title_state.soundboard);
     az_start_screen_redraw(); {
       az_draw_title_screen(&title_state);
@@ -189,6 +192,7 @@ static az_mode_t run_gameover_mode(void) {
                          gameover_state.name_buffer);
     save_highscore_list();
   }
+  last_game = entry;
   return TITLE_MODE;
 }
 
