@@ -144,6 +144,12 @@ void begin_wave(az_play_state_t *state, bool skip) {
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (target->kind == AZ_TARG_BONUS) {
+      for (int i = 0; i < 360; i += 20) {
+        az_add_particle(state, (az_color_t){255, 255, 255, 255},
+                        az_vadd(target->position,
+                                az_vpolar(AZ_TARGET_RADIUS, AZ_DEG2RAD(i))),
+                        az_vpolar(50.0, AZ_DEG2RAD(i + 90)), 1.0);
+      }
       target->kind = AZ_TARG_NOTHING;
     } else if (target->wave < state->current_wave) {
       target->wave = state->current_wave;
