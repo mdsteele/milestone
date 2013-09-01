@@ -28,11 +28,13 @@
 #include "milestone/gui/audio.h"
 #include "milestone/gui/event.h"
 #include "milestone/gui/screen.h"
+#include "milestone/state/gameover.h"
 #include "milestone/state/highscore.h"
 #include "milestone/state/play.h"
 #include "milestone/system/resource.h"
 #include "milestone/tick/play.h"
 #include "milestone/util/random.h"
+#include "milestone/view/gameover.h"
 #include "milestone/view/play.h"
 #include "milestone/view/title.h"
 
@@ -41,6 +43,7 @@
 static az_highscore_list_t highscore_list;
 static az_title_state_t title_state;
 static az_play_state_t play_state;
+static az_gameover_state_t gameover_state;
 
 static void load_highscore_list(void) {
   const char *data_dir = az_get_app_data_directory();
@@ -107,6 +110,7 @@ static az_mode_t run_play_mode(void) {
     // Tick the state and redraw the screen.
     az_tick_play_state(&play_state, 1.0 / 60.0);
     az_tick_audio_mixer(&play_state.soundboard);
+    if (play_state.num_lives < 0) return GAMEOVER_MODE;
     az_start_screen_redraw(); {
       az_draw_play_screen(&play_state);
     } az_finish_screen_redraw();
@@ -137,12 +141,52 @@ static az_mode_t run_play_mode(void) {
 }
 
 static az_mode_t run_gameover_mode(void) {
-  // TODO: Implement a proper game over screen that lets you choose your name.
-  printf("Game over!\n");
+  az_init_gameover_state(&gameover_state);
+  gameover_state.last_wave = play_state.current_wave;
+  gameover_state.score = play_state.score;
   az_highscore_t *entry = az_submit_highscore(
-      &highscore_list, play_state.score, play_state.current_wave);
+      &highscore_list, gameover_state.score, gameover_state.last_wave);
+  gameover_state.is_high_score = (entry != NULL);
+
+  bool done = false;
+  while (!done) {
+    // Tick the state and redraw the screen.
+    az_tick_audio_mixer(&gameover_state.soundboard);
+    az_start_screen_redraw(); {
+      az_draw_gameover_screen(&gameover_state);
+    } az_finish_screen_redraw();
+
+    // Get and process GUI events.
+    az_event_t event;
+    while (az_poll_event(&event)) {
+      switch (event.kind) {
+        case AZ_EVENT_KEY_DOWN:
+          if (event.key.id == AZ_KEY_RETURN) done = true;
+          else if (event.key.id == AZ_KEY_BACKSPACE) {
+            if (gameover_state.cursor > 0) {
+              gameover_state.name_buffer[--gameover_state.cursor] = '\0';
+            }
+          } else if (gameover_state.cursor < 20 &&
+                     event.key.character > '\0' &&
+                     strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            "abcdefghijklmnopqrstuvwxyz"
+                            "0123456789 -_.,?/!@#$%^&*()|~",
+                            event.key.character) != NULL) {
+            gameover_state.name_buffer[gameover_state.cursor++] =
+              event.key.character;
+          }
+          break;
+        case AZ_EVENT_MOUSE_DOWN:
+          if (!gameover_state.is_high_score) done = true;
+          break;
+        default: break;
+      }
+    }
+  }
+
   if (entry != NULL) {
-    entry->name = strdup("Anonymous");
+    entry->name = strdup(gameover_state.cursor == 0 ? "Mysterious Stranger" :
+                         gameover_state.name_buffer);
     save_highscore_list();
   }
   return TITLE_MODE;

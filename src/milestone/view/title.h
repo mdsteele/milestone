@@ -25,7 +25,7 @@
 
 /*===========================================================================*/
 
-void az_draw_title_screen(const az_title_state_t *title_state);
+void az_draw_title_screen(const az_title_state_t *state);
 
 /*===========================================================================*/
 

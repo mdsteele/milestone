@@ -17,47 +17,16 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include "milestone/view/title.h"
+#pragma once
+#ifndef MILESTONE_VIEW_GAMEOVER_H_
+#define MILESTONE_VIEW_GAMEOVER_H_
 
-#include <inttypes.h>
-
-#include <GL/gl.h>
-
-#include "milestone/constants.h"
-#include "milestone/state/highscore.h"
-#include "milestone/state/title.h"
-#include "milestone/util/misc.h"
-#include "milestone/view/string.h"
+#include "milestone/state/gameover.h"
 
 /*===========================================================================*/
 
-void az_draw_title_screen(const az_title_state_t *state) {
-  // Border:
-  glColor3f(0, 0, 1);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1.5f, 1.5f);
-    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, 1.5f);
-    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, AZ_SCREEN_HEIGHT - 1.5f);
-    glVertex2f(1.5f, AZ_SCREEN_HEIGHT - 1.5f);
-  } glEnd();
-  // Title:
-  glColor3f(1, 0, 0);
-  az_draw_string(64, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 50, "Milestone");
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
-                 "Click mouse to start");
-  // High scores:
-  glColor3f(0.5, 0.5, 0.5);
-  int top = 400;
-  AZ_ARRAY_LOOP(entry, state->highscore_list->entries) {
-    az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top,
-                   "%20s %3d  %08"PRId64,
-                   (entry->name == NULL ? "--------------------" :
-                    entry->name), entry->wave, entry->score);
-    top -= 20;
-  }
-  glColor3f(1, 0, 0);
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top - 6,
-                 "        Name         Wave   Score ");
-}
+void az_draw_gameover_screen(const az_gameover_state_t *state);
 
 /*===========================================================================*/
+
+#endif // MILESTONE_VIEW_GAMEOVER_H_

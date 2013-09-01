@@ -17,21 +17,20 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include "milestone/view/title.h"
+#include "milestone/view/gameover.h"
 
 #include <inttypes.h>
 
 #include <GL/gl.h>
 
 #include "milestone/constants.h"
-#include "milestone/state/highscore.h"
-#include "milestone/state/title.h"
+#include "milestone/state/gameover.h"
 #include "milestone/util/misc.h"
 #include "milestone/view/string.h"
 
 /*===========================================================================*/
 
-void az_draw_title_screen(const az_title_state_t *state) {
+void az_draw_gameover_screen(const az_gameover_state_t *state) {
   // Border:
   glColor3f(0, 0, 1);
   glBegin(GL_LINE_LOOP); {
@@ -40,24 +39,26 @@ void az_draw_title_screen(const az_title_state_t *state) {
     glVertex2f(AZ_SCREEN_WIDTH - 1.5f, AZ_SCREEN_HEIGHT - 1.5f);
     glVertex2f(1.5f, AZ_SCREEN_HEIGHT - 1.5f);
   } glEnd();
-  // Title:
+  // Text:
   glColor3f(1, 0, 0);
-  az_draw_string(64, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 50, "Milestone");
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
-                 "Click mouse to start");
-  // High scores:
-  glColor3f(0.5, 0.5, 0.5);
-  int top = 400;
-  AZ_ARRAY_LOOP(entry, state->highscore_list->entries) {
-    az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top,
-                   "%20s %3d  %08"PRId64,
-                   (entry->name == NULL ? "--------------------" :
-                    entry->name), entry->wave, entry->score);
-    top -= 20;
+  az_draw_string(64, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 100, "GAME OVER");
+  az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 250,
+                 "On wave %d, with a score of %"PRId64",",
+                 state->last_wave, state->score);
+  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 270,
+                 "you finally fell behind.");
+  // High score:
+  if (state->is_high_score) {
+    az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 370,
+                   "Please enter your name:");
+    glColor3f(1, 1, 1);
+    az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 400,
+                   state->name_buffer);
+  } else {
+    glColor3f(0.5, 0.5, 0.5);
+    az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
+                   "Press ENTER to return to title.");
   }
-  glColor3f(1, 0, 0);
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top - 6,
-                 "        Name         Wave   Score ");
 }
 
 /*===========================================================================*/
