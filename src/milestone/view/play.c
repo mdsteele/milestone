@@ -20,6 +20,7 @@
 #include "milestone/view/play.h"
 
 #include <inttypes.h>
+#include <math.h>
 
 #include "GL/gl.h"
 
@@ -47,10 +48,31 @@ static void set_color_for_wave(int wave) {
 static void draw_avatar(const az_play_state_t *state) {
   glPushMatrix(); {
     glTranslated(state->avatar_position.x, state->avatar_position.y, 0);
-    glColor3f(1, 0, 1);
-    glBegin(GL_LINE_LOOP); {
-      glVertex2f(10, 0); glVertex2f(0, 10);
-      glVertex2f(-10, 0); glVertex2f(0, -10);
+    glRotated(AZ_RAD2DEG(az_vtheta(state->avatar_velocity)), 0, 0, 1);
+    const double outer = AZ_AVATAR_RADIUS;
+    const double inner = outer - 3;
+    glBegin(GL_TRIANGLE_STRIP); {
+      for (int i = 0; i <= 360; i += 30) {
+        const double c = cos(AZ_DEG2RAD(i)), s = sin(AZ_DEG2RAD(i));
+        glColor3f(0.8, 0.8, 0.8); glVertex2f(inner * c, inner * s);
+        glColor3f(0.4, 0.4, 0.4); glVertex2f(outer * c, outer * s);
+      }
+    } glEnd();
+    for (int i = 0; i < 360; i += 120) {
+      glBegin(GL_TRIANGLE_STRIP); {
+        glColor3f(0.4, 0.4, 0.4); glVertex2f(3, 2); glVertex2f(inner, 1);
+        glColor3f(0.8, 0.8, 0.8); glVertex2f(0, 0); glVertex2f(outer, 0);
+        glColor3f(0.4, 0.4, 0.4); glVertex2f(3, -2); glVertex2f(inner, -1);
+      } glEnd();
+      glRotatef(120, 0, 0, 1);
+    }
+    glBegin(GL_TRIANGLE_FAN); {
+      az_color_t color = az_color_for_wave(az_clock_mod(6, 20, state->clock));
+      glColor4ub(color.r, color.g, color.b, color.a); glVertex2f(0, 0);
+      glColor4ub(color.r / 2, color.g / 2, color.b / 2, color.a);
+      for (int i = 0; i <= 360; i += 30) {
+        glVertex2d(4 * cos(AZ_DEG2RAD(i)), 4 * sin(AZ_DEG2RAD(i)));
+      }
     } glEnd();
   } glPopMatrix();
 }
