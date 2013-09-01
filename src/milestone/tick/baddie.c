@@ -186,7 +186,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         az_add_target(state, AZ_TARG_FAKE, state->current_wave,
                       baddie->position);
         baddie->cooldown = 3.0;
-        az_play_sound(&state->soundboard, AZ_SND_FAKE_TARGET);
+        az_play_sound(&state->soundboard, AZ_SND_DROP_FAKE_TARGET);
       }
     } break;
     case AZ_BAD_GHOST: {

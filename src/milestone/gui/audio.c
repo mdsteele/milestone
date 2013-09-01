@@ -203,13 +203,25 @@ static az_sound_entry_t sound_entries[] = {
     .start_freq = 0.36764, .freq_slide = 0.29932,
     .square_duty = 0.44148, .repeat_speed = 0.48436
   },
-  [AZ_SND_BREAK_TARGET] = {
+  [AZ_SND_BREAK_BONUS_TARGET] = {
+    .wave_kind = NOISE,
+    .env_sustain = 0.2272, .env_punch = 0.33782, .env_decay = 0.45975,
+    .start_freq = 0.2628042, .freq_slide = -0.2587,
+    .vibrato_depth = 0.4403, .vibrato_speed = 0.11262, .volume_adjust = -0.4
+  },
+  [AZ_SND_BREAK_FAKE_TARGET] = {
+    .wave_kind = NOISE,
+    .env_sustain = 0.2272, .env_punch = 0.33782, .env_decay = 0.45975,
+    .start_freq = 0.1, .freq_slide = -0.2587,
+    .vibrato_depth = 0.4403, .vibrato_speed = 0.11262, .volume_adjust = -0.3
+  },
+  [AZ_SND_BREAK_NORMAL_TARGET] = {
     .wave_kind = NOISE,
     .env_sustain = 0.2272, .env_punch = 0.33782, .env_decay = 0.45975,
     .start_freq = 0.1628042, .freq_slide = -0.2587,
-    .vibrato_depth = 0.4403, .vibrato_speed = 0.11262
+    .vibrato_depth = 0.4403, .vibrato_speed = 0.11262, .volume_adjust = -0.3
   },
-  [AZ_SND_FAKE_TARGET] = {
+  [AZ_SND_DROP_FAKE_TARGET] = {
     .wave_kind = SQUARE,
     .env_attack = 0.07240744, .env_sustain = 0.03976036,
     .env_punch = 0.1997017, .env_decay = 0.4092,

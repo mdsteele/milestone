@@ -133,11 +133,14 @@ static void tick_avatar(az_play_state_t *state, double time) {
       // Determine the attributes of this target.
       int value = 250;
       double elasticity = 0.75;
+      az_sound_key_t sound = AZ_SND_BREAK_NORMAL_TARGET;
       if (target->kind == AZ_TARG_BONUS) {
         value *= cbrt(target->wave + 1);
         elasticity = 2.0;
+        sound = AZ_SND_BREAK_BONUS_TARGET;
       } else if (target->kind == AZ_TARG_FAKE) {
         value = 0;
+        sound = AZ_SND_BREAK_FAKE_TARGET;
       } else if (target->kind == AZ_TARG_REBEL) {
         value *= 3;
       }
@@ -159,8 +162,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
       az_vpluseq(&state->avatar_velocity,
                  az_vmul(az_vproj(state->avatar_velocity, delta),
                          -(1.0 + elasticity)));
-      // Play a sound.
-      az_play_sound(&state->soundboard, AZ_SND_BREAK_TARGET);
+      az_play_sound(&state->soundboard, sound);
     }
   }
 }
