@@ -105,6 +105,7 @@ void az_award_points(az_play_state_t *state, int64_t points) {
   const int64_t new_score = state->score;
   if (new_score / AZ_POINTS_PER_BOMB > old_score / AZ_POINTS_PER_BOMB) {
     ++state->num_bombs;
+    az_set_message(&state->status_message, 2.5, true, "Extra bomb earned!");
     az_play_sound(&state->soundboard, AZ_SND_GAIN_BOMB);
   }
 }

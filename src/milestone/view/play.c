@@ -31,6 +31,7 @@
 #include "milestone/gui/event.h"
 #include "milestone/util/color.h"
 #include "milestone/util/misc.h"
+#include "milestone/view/avatar.h"
 #include "milestone/view/baddie.h"
 #include "milestone/view/particle.h"
 #include "milestone/view/projectile.h"
@@ -44,38 +45,6 @@
 static void set_color_for_wave(int wave) {
   const az_color_t color = az_color_for_wave(wave);
   glColor4ub(color.r, color.g, color.b, color.a);
-}
-
-static void draw_avatar(const az_play_state_t *state) {
-  glPushMatrix(); {
-    glTranslated(state->avatar_position.x, state->avatar_position.y, 0);
-    glRotated(AZ_RAD2DEG(az_vtheta(state->avatar_velocity)), 0, 0, 1);
-    const double outer = AZ_AVATAR_RADIUS;
-    const double inner = outer - 3;
-    glBegin(GL_TRIANGLE_STRIP); {
-      for (int i = 0; i <= 360; i += 30) {
-        const double c = cos(AZ_DEG2RAD(i)), s = sin(AZ_DEG2RAD(i));
-        glColor3f(0.8, 0.8, 0.8); glVertex2f(inner * c, inner * s);
-        glColor3f(0.4, 0.4, 0.4); glVertex2f(outer * c, outer * s);
-      }
-    } glEnd();
-    for (int i = 0; i < 360; i += 120) {
-      glBegin(GL_TRIANGLE_STRIP); {
-        glColor3f(0.4, 0.4, 0.4); glVertex2f(3, 2); glVertex2f(inner, 1);
-        glColor3f(0.8, 0.8, 0.8); glVertex2f(0, 0); glVertex2f(outer, 0);
-        glColor3f(0.4, 0.4, 0.4); glVertex2f(3, -2); glVertex2f(inner, -1);
-      } glEnd();
-      glRotatef(120, 0, 0, 1);
-    }
-    glBegin(GL_TRIANGLE_FAN); {
-      az_color_t color = az_color_for_wave(az_clock_mod(6, 20, state->clock));
-      glColor4ub(color.r, color.g, color.b, color.a); glVertex2f(0, 0);
-      glColor4ub(color.r / 2, color.g / 2, color.b / 2, color.a);
-      for (int i = 0; i <= 360; i += 30) {
-        glVertex2d(4 * cos(AZ_DEG2RAD(i)), 4 * sin(AZ_DEG2RAD(i)));
-      }
-    } glEnd();
-  } glPopMatrix();
 }
 
 static void flash_screen(az_color_t color, double alpha) {
@@ -95,8 +64,8 @@ static void draw_message(const az_message_t *message, int top,
     glTranslated(AZ_SCREEN_WIDTH / 2, top, 0);
     glBegin(GL_TRIANGLE_STRIP); {
       const int length = strlen(message->text);
-      const GLfloat semiwidth = 4 * length + 4;
-      glColor4f(0, 0, 0, 0.5 * alpha);
+      const GLfloat semiwidth = 8 * length + 4;
+      glColor4f(0, 0, 0, 0.6 * alpha);
       glVertex2f(-semiwidth, 0); glVertex2f(semiwidth, 0);
       glVertex2f(-semiwidth, 20); glVertex2f(semiwidth, 20);
     } glEnd();
@@ -116,8 +85,27 @@ static void draw_hud(const az_play_state_t *state) {
   glColor3f(1, 1, 1);
   az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 3,
                  "%08"PRId64, state->score);
-  az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 10, 3,
-                 "Bombs:%d Delays:%d", state->num_bombs, state->num_lives);
+
+  // Draw bombs:
+  for (int i = 0; i < 3 && i < state->num_bombs; ++i) {
+    az_draw_bomb_icon(AZ_SCREEN_WIDTH - 134 - 18 * i, 2);
+  }
+  if (state->num_bombs > 3) {
+    glColor3f(1, 1, 1);
+    az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 171, 3, "%d",
+                   state->num_bombs);
+  }
+
+  // Draw lives:
+  for (int i = 0; i < 3 && i < state->num_lives; ++i) {
+    az_draw_avatar_icon(AZ_SCREEN_WIDTH - 18 * (i + 1), 2,
+                        state->current_wave);
+  }
+  if (state->num_lives > 3) {
+    glColor3f(1, 1, 1);
+    az_draw_printf(16, AZ_ALIGN_RIGHT, AZ_SCREEN_WIDTH - 55, 3, "%d",
+                   state->num_lives);
+  }
 
   // Timer bar:
   glBegin(GL_TRIANGLE_STRIP); {
@@ -162,7 +150,7 @@ void az_draw_play_screen(const az_play_state_t *state) {
   az_draw_targets(state);
   az_draw_baddies(state);
   az_draw_projectiles(state);
-  draw_avatar(state);
+  az_draw_avatar(state);
   az_draw_particles(state);
   if (state->gained_life_flash > 0.0) {
     flash_screen((az_color_t){255, 255, 255, 128}, state->gained_life_flash);

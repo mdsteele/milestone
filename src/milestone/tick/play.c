@@ -236,21 +236,21 @@ void begin_wave(az_play_state_t *state, bool skip) {
   state->baddies_left_to_spawn = state->total_baddies_to_spawn;
   state->spawn_cooldown = 1.2;
 
-  // Set a message:
+  // Set a tutorial message for the first few waves:
   if (state->current_wave == 1) {
-    az_set_message(&state->tutorial_message, 4.0, false,
-                   "Collect the yellow targets");
+    az_set_message(&state->tutorial_message, 4.5, false,
+                   "Move mouse to collect the yellow targets");
   } else if (state->current_wave == 2) {
     az_set_message(&state->tutorial_message, 4.0, false,
-                   "Now collect the blue targets");
+                   "Next, collect the blue targets");
   } else if (state->current_wave == 3) {
     az_set_message(&state->tutorial_message, 4.0, false,
-                   "Click to shoot enemies");
+                   "Click mouse to shoot enemies");
   } else if (state->current_wave == 4) {
     az_set_message(&state->tutorial_message, 4.0, false,
-                   "Press space to use a bomb");
+                   "Press space bar to use a bomb");
   } else if (state->current_wave == 5) {
-    az_set_message(&state->tutorial_message, 4.0, false,
+    az_set_message(&state->tutorial_message, 3.0, false,
                    "Don't fall behind!");
   }
 }
@@ -330,13 +330,13 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       state->wave_time_remaining = 0.0;
       state->current_wave += 2;
       state->gained_life_flash = 1.0;
-      az_set_message(&state->status_message, 2.5, true, "AHEAD OF SCHEDULE!");
+      az_set_message(&state->status_message, 2.5, true, "Ahead of schedule!");
       az_play_sound(&state->soundboard, AZ_SND_GAIN_LIFE);
       begin_wave(state, true);
     } else if (!state->bonus_round) {
       state->bonus_round = true;
       state->bonus_flash = 1.0;
-      az_set_message(&state->status_message, 2.5, true, "BONUS ROUND!");
+      az_set_message(&state->status_message, 2.5, true, "Bonus round!");
       az_play_sound(&state->soundboard, AZ_SND_BONUS_ROUND);
       int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {
