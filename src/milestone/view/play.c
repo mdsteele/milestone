@@ -21,6 +21,7 @@
 
 #include <inttypes.h>
 #include <math.h>
+#include <string.h>
 
 #include "GL/gl.h"
 
@@ -86,6 +87,26 @@ static void flash_screen(az_color_t color, double alpha) {
   } glEnd();
 }
 
+static void draw_message(const az_message_t *message, int top,
+                         az_clock_t clock) {
+  if (message->time_remaining <= 0.0) return;
+  const GLfloat alpha = fmin(1.0, message->time_remaining);
+  glPushMatrix(); {
+    glTranslated(AZ_SCREEN_WIDTH / 2, top, 0);
+    glBegin(GL_TRIANGLE_STRIP); {
+      const int length = strlen(message->text);
+      const GLfloat semiwidth = 4 * length + 4;
+      glColor4f(0, 0, 0, 0.5 * alpha);
+      glVertex2f(-semiwidth, 0); glVertex2f(semiwidth, 0);
+      glVertex2f(-semiwidth, 20); glVertex2f(semiwidth, 20);
+    } glEnd();
+    if (message->flash && az_clock_mod(2, 2, clock)) {
+      glColor4f(1, 1, 0, alpha);
+    } else glColor4f(1, 1, 1, alpha);
+    az_draw_string(16, AZ_ALIGN_CENTER, 0, 3, message->text);
+  } glPopMatrix();
+}
+
 static void draw_hud(const az_play_state_t *state) {
   // Score bar:
   if (state->bonus_round && az_clock_mod(2, 2, state->clock)) {
@@ -128,6 +149,11 @@ static void draw_hud(const az_play_state_t *state) {
     glVertex2f(left, top); glVertex2f(right, top);
     glVertex2f(right, bottom); glVertex2f(left, bottom);
   } glEnd();
+
+  // Messages:
+  draw_message(&state->tutorial_message, STATUS_HEIGHT + 4, state->clock);
+  draw_message(&state->status_message, AZ_SCREEN_HEIGHT - STATUS_HEIGHT - 24,
+               state->clock);
 }
 
 /*===========================================================================*/

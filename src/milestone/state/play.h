@@ -38,6 +38,12 @@
 #define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_MAX_NUM_TARGETS 200
 
+typedef struct {
+  const char *text;
+  double time_remaining;
+  bool flash;
+} az_message_t;
+
 typedef enum {
   AZ_PROJ_NOTHING = 0,
   // Player projectiles:
@@ -74,6 +80,9 @@ typedef struct {
   double bonus_flash; // 0 to 1
   double gained_life_flash; // 0 to 1
   double lost_life_flash; // 0 to 1
+  // Messages:
+  az_message_t tutorial_message;
+  az_message_t status_message;
   // Avatar:
   az_vector_t avatar_position;
   az_vector_t avatar_velocity;
@@ -102,6 +111,9 @@ void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
 
 void az_add_target(az_play_state_t *state, az_target_kind_t kind,
                    int wave, az_vector_t position);
+
+void az_set_message(az_message_t *message, double seconds, bool flash,
+                    const char *text);
 
 void az_award_points(az_play_state_t *state, int64_t points);
 

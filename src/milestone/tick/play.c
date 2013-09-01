@@ -121,6 +121,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
         az_vadd(baddie->position,
                 az_vwithlen(delta, AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS));
       baddie->stun = 2.5;
+      // TODO: play sound
     }
   }
 
@@ -207,6 +208,8 @@ void begin_wave(az_play_state_t *state, bool skip) {
   } else if (delayed) {
     --state->num_lives;
     state->lost_life_flash = 1.0;
+    az_set_message(&state->status_message, 2.5, false,
+                   "Didn't hit all targets on time...");
     az_play_sound(&state->soundboard, AZ_SND_LOSE_LIFE);
   } else az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);
 
@@ -232,6 +235,30 @@ void begin_wave(az_play_state_t *state, bool skip) {
   state->total_baddies_to_spawn = az_imin(20, state->current_wave / 2);
   state->baddies_left_to_spawn = state->total_baddies_to_spawn;
   state->spawn_cooldown = 1.2;
+
+  // Set a message:
+  if (state->current_wave == 1) {
+    az_set_message(&state->tutorial_message, 4.0, false,
+                   "Collect the yellow targets");
+  } else if (state->current_wave == 2) {
+    az_set_message(&state->tutorial_message, 4.0, false,
+                   "Now collect the blue targets");
+  } else if (state->current_wave == 3) {
+    az_set_message(&state->tutorial_message, 4.0, false,
+                   "Click to shoot enemies");
+  } else if (state->current_wave == 4) {
+    az_set_message(&state->tutorial_message, 4.0, false,
+                   "Press space to use a bomb");
+  } else if (state->current_wave == 5) {
+    az_set_message(&state->tutorial_message, 4.0, false,
+                   "Don't fall behind!");
+  }
+}
+
+/*===========================================================================*/
+
+static void tick_message(az_message_t *message, double time) {
+  message->time_remaining = fmax(0.0, message->time_remaining - time);
 }
 
 /*===========================================================================*/
@@ -247,6 +274,8 @@ void az_tick_play_state(az_play_state_t *state, double time) {
     fmax(0.0, state->gained_life_flash - time / GAINED_LIFE_FLASH_TIME);
   state->lost_life_flash =
     fmax(0.0, state->lost_life_flash - time / LOST_LIFE_FLASH_TIME);
+  tick_message(&state->tutorial_message, time);
+  tick_message(&state->status_message, time);
 
   az_tick_particles(state, time);
   spawn_baddies(state, time);
@@ -301,11 +330,13 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       state->wave_time_remaining = 0.0;
       state->current_wave += 2;
       state->gained_life_flash = 1.0;
+      az_set_message(&state->status_message, 2.5, true, "AHEAD OF SCHEDULE!");
       az_play_sound(&state->soundboard, AZ_SND_GAIN_LIFE);
       begin_wave(state, true);
     } else if (!state->bonus_round) {
       state->bonus_round = true;
       state->bonus_flash = 1.0;
+      az_set_message(&state->status_message, 2.5, true, "BONUS ROUND!");
       az_play_sound(&state->soundboard, AZ_SND_BONUS_ROUND);
       int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {

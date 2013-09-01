@@ -91,6 +91,13 @@ void az_add_target(az_play_state_t *state, az_target_kind_t kind,
   }
 }
 
+void az_set_message(az_message_t *message, double seconds, bool flash,
+                    const char *text) {
+  message->time_remaining = seconds;
+  message->flash = flash;
+  message->text = text;
+}
+
 void az_award_points(az_play_state_t *state, int64_t points) {
   assert(points >= 0);
   const int64_t old_score = state->score;

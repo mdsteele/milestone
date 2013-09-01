@@ -50,7 +50,6 @@ static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie,
       az_add_particle(state, color, position, velocity, lifetime);
     }
   }
-  // TODO: particles for dead baddie
   az_sound_key_t sound = AZ_SND_KILL_TANK;
   switch (baddie->kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();

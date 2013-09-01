@@ -47,7 +47,7 @@ void az_draw_gameover_screen(const az_gameover_state_t *state) {
                  "On wave %d, with a score of %"PRId64",",
                  state->last_wave, state->score);
   az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 270,
-                 "you finally fell behind.");
+                 "you finally fell too far behind.");
   // High score:
   if (state->is_high_score) {
     glColor3f(0.5, 0.5, 0.5);
