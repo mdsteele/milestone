@@ -17,16 +17,16 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_VIEW_TITLE_H_
-#define MILESTONE_VIEW_TITLE_H_
-
 #include "milestone/state/title.h"
 
-/*===========================================================================*/
-
-void az_draw_title_screen(const az_title_state_t *title_state);
+#include <string.h>
 
 /*===========================================================================*/
 
-#endif // MILESTONE_VIEW_TITLE_H_
+void az_init_title_state(az_title_state_t *state,
+                         const az_highscore_list_t *highscore_list) {
+  memset(state, 0, sizeof(*state));
+  state->highscore_list = highscore_list;
+}
+
+/*===========================================================================*/

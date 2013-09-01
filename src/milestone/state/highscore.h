@@ -18,15 +18,39 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_VIEW_TITLE_H_
-#define MILESTONE_VIEW_TITLE_H_
+#ifndef MILESTONE_STATE_HIGHSCORE_H_
+#define MILESTONE_STATE_HIGHSCORE_H_
 
-#include "milestone/state/title.h"
-
-/*===========================================================================*/
-
-void az_draw_title_screen(const az_title_state_t *title_state);
+#include <stdbool.h>
+#include <stdint.h>
 
 /*===========================================================================*/
 
-#endif // MILESTONE_VIEW_TITLE_H_
+typedef struct {
+  char *name; // NUL-terminated, owned; NULL for no entry
+  int64_t score;
+  int wave;
+} az_highscore_t;
+
+typedef struct {
+  az_highscore_t entries[12]; // first entry is lowest score
+} az_highscore_list_t;
+
+/*===========================================================================*/
+
+bool az_load_highscore_list(const char *file_path,
+                            az_highscore_list_t *highscore_list_out);
+
+bool az_save_highscore_list(const az_highscore_list_t *highscore_list,
+                            const char *file_path);
+
+void az_clear_highscore_list(az_highscore_list_t *highscore_list);
+
+// If the score is high enough to make it on the list, return a pointer to the
+// entry.  Otherwise, return NULL.
+az_highscore_t *az_submit_highscore(az_highscore_list_t *highscore_list,
+                                    int64_t score, int wave);
+
+/*===========================================================================*/
+
+#endif // MILESTONE_STATE_HIGHSCORE_H_

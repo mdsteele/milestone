@@ -18,15 +18,22 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_VIEW_TITLE_H_
-#define MILESTONE_VIEW_TITLE_H_
-
-#include "milestone/state/title.h"
+#ifndef MILESTONE_SYSTEM_RESOURCE_H_
+#define MILESTONE_SYSTEM_RESOURCE_H_
 
 /*===========================================================================*/
 
-void az_draw_title_screen(const az_title_state_t *title_state);
+// Get the path to the user-specific directory for storing persistent data for
+// this application (e.g. preferences or save files) as a NUL-terminated string
+// (without the trailing slash).  If the directory doesn't already exist,
+// create it.  If anything fails, this will return a NULL pointer.
+const char *az_get_app_data_directory(void);
+
+// Get the path to the directory containing the game's resource files as a
+// NUL-terminated string (without the trailing slash).  If this fails, it will
+// return a NULL pointer.
+const char *az_get_resource_directory(void);
 
 /*===========================================================================*/
 
-#endif // MILESTONE_VIEW_TITLE_H_
+#endif // MILESTONE_SYSTEM_RESOURCE_H_

@@ -28,7 +28,9 @@
 #include "milestone/gui/audio.h"
 #include "milestone/gui/event.h"
 #include "milestone/gui/screen.h"
+#include "milestone/state/highscore.h"
 #include "milestone/state/play.h"
+#include "milestone/system/resource.h"
 #include "milestone/tick/play.h"
 #include "milestone/util/random.h"
 #include "milestone/view/play.h"
@@ -36,7 +38,35 @@
 
 /*===========================================================================*/
 
+static az_highscore_list_t highscore_list;
+static az_title_state_t title_state;
 static az_play_state_t play_state;
+
+static void load_highscore_list(void) {
+  const char *data_dir = az_get_app_data_directory();
+  if (data_dir != NULL) {
+    char path_buffer[strlen(data_dir) + 16u];
+    sprintf(path_buffer, "%s/highscores.txt", data_dir);
+    if (az_load_highscore_list(path_buffer, &highscore_list)) return;
+  }
+  az_clear_highscore_list(&highscore_list);
+}
+
+static void save_highscore_list(void) {
+  const char *data_dir = az_get_app_data_directory();
+  if (data_dir != NULL) {
+    char path_buffer[strlen(data_dir) + 16u];
+    sprintf(path_buffer, "%s/highscores.txt", data_dir);
+    if (az_save_highscore_list(&highscore_list, path_buffer)) return;
+  }
+  fprintf(stderr, "WARNING: Failed to save high scores.\n");
+}
+
+static void clear_highscore_list(void) {
+  az_clear_highscore_list(&highscore_list);
+}
+
+/*===========================================================================*/
 
 typedef enum {
   TITLE_MODE,
@@ -45,11 +75,13 @@ typedef enum {
 } az_mode_t;
 
 static az_mode_t run_title_mode(void) {
+  az_init_title_state(&title_state, &highscore_list);
+
   while (true) {
     // Tick the state and redraw the screen.
-    az_tick_audio_mixer(&play_state.soundboard);
+    az_tick_audio_mixer(&title_state.soundboard);
     az_start_screen_redraw(); {
-      az_draw_title_screen();
+      az_draw_title_screen(&title_state);
     } az_finish_screen_redraw();
 
     // Get and process GUI events.
@@ -105,15 +137,23 @@ static az_mode_t run_play_mode(void) {
 }
 
 static az_mode_t run_gameover_mode(void) {
-  // TODO: Implement a game over screen.
+  // TODO: Implement a proper game over screen that lets you choose your name.
   printf("Game over!\n");
+  az_highscore_t *entry = az_submit_highscore(
+      &highscore_list, play_state.score, play_state.current_wave);
+  if (entry != NULL) {
+    entry->name = strdup("Anonymous");
+    save_highscore_list();
+  }
   return TITLE_MODE;
 }
 
 /*===========================================================================*/
 
 int main(int argc, char **argv) {
+  atexit(clear_highscore_list);
   az_init_random();
+  load_highscore_list();
   az_init_gui(false);
 
   az_mode_t mode = TITLE_MODE;

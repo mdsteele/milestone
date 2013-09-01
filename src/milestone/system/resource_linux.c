@@ -17,45 +17,60 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include "milestone/view/title.h"
+#include "milestone/system/resource.h"
 
-#include <inttypes.h>
-
-#include <GL/gl.h>
-
-#include "milestone/constants.h"
-#include "milestone/state/highscore.h"
-#include "milestone/state/title.h"
-#include "milestone/util/misc.h"
-#include "milestone/view/string.h"
+#include <errno.h>
+#include <linux/limits.h> // for PATH_MAX
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <wordexp.h>
 
 /*===========================================================================*/
 
-void az_draw_title_screen(const az_title_state_t *title_state) {
-  // Border:
-  glColor3f(0, 0, 1);
-  glBegin(GL_LINE_LOOP); {
-    glVertex2f(1.5f, 1.5f);
-    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, 1.5f);
-    glVertex2f(AZ_SCREEN_WIDTH - 1.5f, AZ_SCREEN_HEIGHT - 1.5f);
-    glVertex2f(1.5f, AZ_SCREEN_HEIGHT - 1.5f);
-  } glEnd();
-  // Title:
-  glColor3f(1, 0, 0);
-  az_draw_string(64, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 50, "Milestone");
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
-                 "Click mouse to start");
-  // High scores:
-  int top = 400;
-  AZ_ARRAY_LOOP(entry, title_state->highscore_list->entries) {
-    az_draw_printf(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top,
-                   "%20s %3d  %08"PRId64,
-                   (entry->name == NULL ? "--------------------" :
-                    entry->name), entry->wave, entry->score);
-    top -= 20;
+const char *az_get_app_data_directory(void) {
+  static char path_buffer[PATH_MAX];
+  if (path_buffer[0] == '\0') {
+    // First, do tilde-expansion so we get a path in the user's homedir.
+    wordexp_t words;
+    wordexp("~/.milestone-game", &words, 0);
+    if (words.we_wordc < 1) {
+      wordfree(&words);
+      return NULL;
+    }
+    strncpy(path_buffer, words.we_wordv[0], sizeof(path_buffer) - 1);
+    wordfree(&words);
+    struct stat stat_buffer;
+    // Try to stat the desired path.
+    if (stat(path_buffer, &stat_buffer) == 0) {
+      // If the path exists but isn't a directory, we fail.
+      if (!S_ISDIR(stat_buffer.st_mode)) {
+        path_buffer[0] = '\0';
+        return NULL;
+      }
+    }
+    // If the directory doesn't exist, try to create it.  If we can't create
+    // it, or if stat failed for some other reason, we fail.
+    else if (errno != ENOENT || mkdir(path_buffer, 0700) != 0) {
+      path_buffer[0] = '\0';
+      return NULL;
+    }
   }
-  az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, top - 6,
-                 "        Name         Wave   Score ");
+  return path_buffer;
+}
+
+const char *az_get_resource_directory(void) {
+  static char path_buffer[PATH_MAX];
+  if (path_buffer[0] == '\0') {
+    int len = readlink("/proc/self/exe", path_buffer, sizeof(path_buffer) - 1);
+    if (len < 0) {
+      path_buffer[0] = '\0';
+      return NULL;
+    }
+    while (--len > 0 && path_buffer[len] != '/');
+    path_buffer[len] = '\0';
+  }
+  return path_buffer;
 }
 
 /*===========================================================================*/

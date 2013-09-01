@@ -18,15 +18,24 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_VIEW_TITLE_H_
-#define MILESTONE_VIEW_TITLE_H_
+#ifndef MILESTONE_STATE_TITLE_H_
+#define MILESTONE_STATE_TITLE_H_
 
-#include "milestone/state/title.h"
-
-/*===========================================================================*/
-
-void az_draw_title_screen(const az_title_state_t *title_state);
+#include "milestone/state/highscore.h"
+#include "milestone/util/audio.h"
+#include "milestone/util/clock.h"
 
 /*===========================================================================*/
 
-#endif // MILESTONE_VIEW_TITLE_H_
+typedef struct {
+  az_clock_t clock;
+  az_soundboard_t soundboard;
+  const az_highscore_list_t *highscore_list;
+} az_title_state_t;
+
+void az_init_title_state(az_title_state_t *state,
+                         const az_highscore_list_t *highscore_list);
+
+/*===========================================================================*/
+
+#endif // MILESTONE_STATE_TITLE_H_

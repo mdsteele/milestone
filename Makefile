@@ -47,10 +47,11 @@ ifeq "$(OS_NAME)" "Darwin"
   CFLAGS += -I$(SRCDIR)/macosx
   MAIN_LIBFLAGS = -framework Cocoa -framework OpenGL \
                   -framework SDL -framework SDL_mixer
-  SYSTEM_OBJFILES = $(OBJDIR)/macosx/SDLMain.o
+  SYSTEM_OBJFILES = $(OBJDIR)/macosx/SDLMain.o \
+                    $(OBJDIR)/milestone/system/resource_mac.o
 else
   MAIN_LIBFLAGS = -lGL -lSDL -lSDL_mixer
-  SYSTEM_OBJFILES =
+  SYSTEM_OBJFILES = $(OBJDIR)/milestone/system/resource_linux.o
 endif
 
 #=============================================================================#
@@ -60,6 +61,7 @@ AZ_GUI_HEADERS := $(shell find $(SRCDIR)/milestone/gui -name '*.h')
 AZ_UTIL_HEADERS := $(shell find $(SRCDIR)/milestone/util -name '*.h') \
                    $(SRCDIR)/milestone/constants.h
 AZ_STATE_HEADERS := $(shell find $(SRCDIR)/milestone/state -name '*.h')
+AZ_SYSTEM_HEADERS := $(shell find $(SRCDIR)/milestone/system -name '*.h')
 AZ_TICK_HEADERS := $(shell find $(SRCDIR)/milestone/tick -name '*.h')
 AZ_VIEW_HEADERS := $(shell find $(SRCDIR)/milestone/view -name '*.h')
 
@@ -91,6 +93,14 @@ $(OBJDIR)/macosx/SDLMain.o: $(SRCDIR)/macosx/SDLMain.m \
                             $(SRCDIR)/macosx/SDLMain.h
 	$(compile-sys)
 
+$(OBJDIR)/milestone/system/resource_mac.o: \
+    $(SRCDIR)/milestone/system/resource_mac.m $(AZ_SYSTEM_HEADERS)
+	$(compile-sys)
+
+$(OBJDIR)/milestone/system/%.o: \
+    $(SRCDIR)/milestone/system/%.c $(AZ_SYSTEM_HEADERS)
+	$(compile-sys)
+
 #=============================================================================#
 # Build rules for compiling non-system-specific code:
 
@@ -106,7 +116,7 @@ $(OBJDIR)/milestone/tick/%.o: $(SRCDIR)/milestone/tick/%.c \
 	$(compile-c99)
 
 $(OBJDIR)/milestone/gui/%.o: $(SRCDIR)/milestone/gui/%.c \
-    $(AZ_UTIL_HEADERS) $(AZ_GUI_HEADERS)
+    $(AZ_UTIL_HEADERS) $(AZ_SYSTEM_HEADERS) $(AZ_GUI_HEADERS)
 	$(compile-c99)
 
 $(OBJDIR)/milestone/view/%.o: $(SRCDIR)/milestone/view/%.c \
@@ -114,8 +124,8 @@ $(OBJDIR)/milestone/view/%.o: $(SRCDIR)/milestone/view/%.c \
 	$(compile-c99)
 
 $(OBJDIR)/milestone/main.o: $(SRCDIR)/milestone/main.c \
-    $(AZ_UTIL_HEADERS) $(AZ_STATE_HEADERS) $(AZ_TICK_HEADERS) \
-    $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
+    $(AZ_UTIL_HEADERS) $(AZ_SYSTEM_HEADERS) $(AZ_STATE_HEADERS) \
+    $(AZ_TICK_HEADERS) $(AZ_GUI_HEADERS) $(AZ_VIEW_HEADERS)
 	$(compile-c99)
 
 #=============================================================================#
