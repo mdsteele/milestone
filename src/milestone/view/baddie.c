@@ -81,6 +81,40 @@ static void draw_baddie(const az_baddie_t *baddie, az_vector_t avatar_position,
         glVertex2f(10, -12); glVertex2f(12, -10); glVertex2f(12, 10);
       } glEnd();
       break;
+    case AZ_BAD_FORCER:
+      if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
+        const GLfloat top = AZ_BOARD_MIN_Y - baddie->position.y;
+        const GLfloat bottom = AZ_BOARD_MAX_Y - baddie->position.y;
+        switch (az_clock_mod(6, 1, clock)) {
+          case 0: glColor4f(1, 0, 0, 0.25); break;
+          case 1: glColor4f(1, 1, 0, 0.25); break;
+          case 2: glColor4f(0, 1, 0, 0.25); break;
+          case 3: glColor4f(0, 1, 1, 0.25); break;
+          case 4: glColor4f(0, 0, 1, 0.25); break;
+          case 5: glColor4f(1, 0, 1, 0.25); break;
+        }
+        glBegin(GL_TRIANGLE_STRIP); {
+          glVertex2f(-7, top); glVertex2f(7, top);
+          glVertex2f(-7, -10); glVertex2f(7, -10);
+        } glEnd();
+        glBegin(GL_TRIANGLE_STRIP); {
+          glVertex2f(-7, 10); glVertex2f(7, 10);
+          glVertex2f(-7, bottom); glVertex2f(7, bottom);
+        } glEnd();
+      }
+      glBegin(GL_TRIANGLE_FAN); {
+        glColor3f(0.5f + 0.5f * flare, 0.5f - 0.5f * flare,
+                  0.5f - 0.5f * flare);
+        glVertex2f(0, 0);
+        glColor3f(0.5f * flare, 0.0f, 0.5f - 0.5f * flare);
+        glVertex2f(11, 11); glVertex2f(-11, 11);
+        glVertex2f(-5, 4); glVertex2f(-8, 4);
+        glVertex2f(-8, -4); glVertex2f(-5, -4);
+        glVertex2f(-11, -11); glVertex2f(11, -11);
+        glVertex2f(5, -4); glVertex2f(8, -4);
+        glVertex2f(8, 4); glVertex2f(5, 4); glVertex2f(11, 11);
+      } glEnd();
+      break;
     case AZ_BAD_GHOST:
       glBegin(GL_TRIANGLE_FAN); {
         const az_vector_t center =

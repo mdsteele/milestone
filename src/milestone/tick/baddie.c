@@ -189,6 +189,20 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         az_play_sound(&state->soundboard, AZ_SND_DROP_FAKE_TARGET);
       }
     } break;
+    case AZ_BAD_FORCER: {
+      if (baddie->velocity.x >= 0.0) baddie->velocity.x = 50.0;
+      else baddie->velocity.x = -50.0;
+      if (baddie->velocity.y >= 0.0) baddie->velocity.y = 20.0;
+      else baddie->velocity.y = -20.0;
+      if (baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
+        az_loop_sound(&state->soundboard, AZ_SND_FORCEFIELD);
+        if (fabs(state->avatar_position.x - baddie->position.x) <= 12 &&
+            state->avatar_velocity.x / baddie->velocity.x < 0.0) {
+          state->avatar_velocity.x = -state->avatar_velocity.x;
+          baddie->cooldown = 0.25;
+        }
+      }
+    } break;
     case AZ_BAD_GHOST: {
       // Make all nearby targets invisible.  Seek towards the target nearest
       // the avatar that doesn't have a nearby baddie (including this one).

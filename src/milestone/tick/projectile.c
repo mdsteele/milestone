@@ -56,6 +56,7 @@ static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie,
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_BASILISK: sound = AZ_SND_KILL_BASILISK; break;
     case AZ_BAD_FAKER: sound = AZ_SND_KILL_TANK; break; // TODO
+    case AZ_BAD_FORCER: sound = AZ_SND_KILL_TANK; break; // TODO
     case AZ_BAD_GHOST: sound = AZ_SND_KILL_TANK; break; // TODO
     case AZ_BAD_GUARD: sound = AZ_SND_KILL_GUARD; break;
     case AZ_BAD_TANK: sound = AZ_SND_KILL_TANK; break;

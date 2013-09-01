@@ -78,7 +78,10 @@ static void spawn_baddies(az_play_state_t *state, double time) {
     fmin(1.9, AZ_SECONDS_PER_WAVE / (state->total_baddies_to_spawn + 1));
 
   az_baddie_kind_t kind;
-  if ((first && state->current_wave == 10) ||
+  if ((first && state->current_wave == 12) ||
+      (state->current_wave >= 12 && az_random(0, 1) < 0.1)) {
+    kind = AZ_BAD_FORCER;
+  } else if ((first && state->current_wave == 10) ||
       (state->current_wave >= 10 && az_random(0, 1) < 0.15)) {
     kind = AZ_BAD_FAKER;
   } else if ((first && state->current_wave == 8) ||
