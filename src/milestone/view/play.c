@@ -73,12 +73,31 @@ static void draw_targets(const az_play_state_t *state) {
   }
 }
 
+static void flash_screen(az_color_t color, double alpha) {
+  glBegin(GL_TRIANGLE_STRIP); {
+    glColor4ub(color.r, color.g, color.b, color.a * alpha);
+    glVertex2f(0, 0); glVertex2f(AZ_SCREEN_WIDTH, 0);
+    glVertex2f(0, AZ_SCREEN_HEIGHT);
+    glVertex2f(AZ_SCREEN_WIDTH, AZ_SCREEN_HEIGHT);
+  } glEnd();
+}
+
 void az_draw_play_screen(const az_play_state_t *state) {
   draw_targets(state);
   az_draw_baddies(state);
   az_draw_projectiles(state);
   draw_avatar(state);
   az_draw_particles(state);
+
+  if (state->gained_life_flash > 0.0) {
+    flash_screen((az_color_t){255, 255, 255, 128}, state->gained_life_flash);
+  }
+  if (state->lost_life_flash > 0.0) {
+    flash_screen((az_color_t){255, 0, 0, 64}, state->lost_life_flash);
+  }
+  if (state->bonus_flash > 0.0) {
+    flash_screen((az_color_t){255, 255, 128, 64}, state->bonus_flash);
+  }
 
   // Score bar:
   glColor3f(1, 1, 1);

@@ -161,6 +161,7 @@ void begin_wave(az_play_state_t *state, bool skip) {
   } else if (delayed) {
     --state->num_lives;
     // TODO: check for game over
+    state->lost_life_flash = 1.0;
     az_play_sound(&state->soundboard, AZ_SND_LOSE_LIFE);
   } else az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);
 
@@ -189,8 +190,18 @@ void begin_wave(az_play_state_t *state, bool skip) {
 
 /*===========================================================================*/
 
+#define BONUS_FLASH_TIME 0.5
+#define GAINED_LIFE_FLASH_TIME 1.0
+#define LOST_LIFE_FLASH_TIME 1.5
+
 void az_tick_play_state(az_play_state_t *state, double time) {
   ++state->clock;
+  state->bonus_flash = fmax(0.0, state->bonus_flash - time / BONUS_FLASH_TIME);
+  state->gained_life_flash =
+    fmax(0.0, state->gained_life_flash - time / GAINED_LIFE_FLASH_TIME);
+  state->lost_life_flash =
+    fmax(0.0, state->lost_life_flash - time / LOST_LIFE_FLASH_TIME);
+
   az_tick_particles(state, time);
   spawn_baddies(state, time);
   az_tick_projectiles(state, time);
@@ -242,10 +253,12 @@ void az_tick_play_state(az_play_state_t *state, double time) {
       ++state->num_lives;
       state->wave_time_remaining = 0.0;
       state->current_wave += 2;
+      state->gained_life_flash = 1.0;
       az_play_sound(&state->soundboard, AZ_SND_GAIN_LIFE);
       begin_wave(state, true);
     } else if (!state->bonus_round) {
       state->bonus_round = true;
+      state->bonus_flash = 1.0;
       az_play_sound(&state->soundboard, AZ_SND_BONUS_ROUND);
       int num_bonus_targets = 8 + state->current_wave;
       AZ_ARRAY_LOOP(target, state->targets) {

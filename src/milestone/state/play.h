@@ -84,6 +84,10 @@ typedef struct {
   double wave_time_remaining; // seconds
   int num_baddies_to_spawn;
   double spawn_cooldown; // seconds
+  // Screen flashes:
+  double bonus_flash; // 0 to 1
+  double gained_life_flash; // 0 to 1
+  double lost_life_flash; // 0 to 1
   // Avatar:
   az_vector_t avatar_position;
   az_vector_t avatar_velocity;
