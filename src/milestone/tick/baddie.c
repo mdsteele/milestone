@@ -141,14 +141,14 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       az_vector_t goal = baddie->position;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind == AZ_TARG_NOTHING) continue;
-        if (target->presence < 0.5) continue;
         if (az_vwithin(target->position, baddie->position, 150.0)) {
           target->is_invisible = true;
         }
+        if (target->presence < 0.5) continue;
         bool alone = true;
         AZ_ARRAY_LOOP(other, state->baddies) {
           if (other->kind == AZ_BAD_NOTHING) continue;
-          if (az_vwithin(other->position, target->position, 100.0)) {
+          if (az_vwithin(other->position, target->position, 150.0)) {
             alone = false;
             break;
           }

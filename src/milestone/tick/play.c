@@ -61,8 +61,14 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   if (state->num_baddies_to_spawn <= 0) return;
   --state->num_baddies_to_spawn;
 
-  // TODO: pick a baddie kind based on wave
-  const az_baddie_kind_t kind = AZ_BAD_TANK;
+  az_baddie_kind_t kind;
+  if (state->current_wave >= 9 && az_random(0, 1) < 0.2) {
+    kind = AZ_BAD_BASILISK;
+  } else if (state->current_wave >= 7 && az_random(0, 1) < 0.2) {
+    kind = AZ_BAD_GHOST;
+  } else if (state->current_wave >= 5 && az_random(0, 1) < 0.4) {
+    kind = AZ_BAD_GUARD;
+  } else kind = AZ_BAD_TANK;
 
   az_add_baddie(state, kind, pick_spawn_point(state));
 }
@@ -105,8 +111,10 @@ static void tick_avatar(az_play_state_t *state, double time) {
       int value = 250;
       double elasticity = 0.75;
       if (target->kind == AZ_TARG_BONUS) {
-        value *= sqrt(target->wave);
+        value *= cbrt(target->wave + 1);
         elasticity = 2.0;
+      } else if (target->kind == AZ_TARG_REBEL) {
+        value *= 3;
       }
       // Create particles for the target.
       const az_color_t color = az_target_color(target);
@@ -174,8 +182,8 @@ void begin_wave(az_play_state_t *state, bool skip) {
     AZ_ARRAY_LOOP(target, state->targets) {
       if (target->kind != AZ_TARG_NOTHING) continue;
       az_target_kind_t kind = AZ_TARG_NORMAL;
-      if (az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
-      else if (az_random(0, 1) < 0.5) kind = AZ_TARG_UNPLANNED;
+      if (wave >= 4 && az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
+      else if (wave >= 9 && az_random(0, 1) < 0.5) kind = AZ_TARG_UNPLANNED;
       az_init_target_at_random_position(target, kind, wave);
       --num_new_targets;
       if (num_new_targets <= 0) break;

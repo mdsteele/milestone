@@ -29,7 +29,8 @@
 /*===========================================================================*/
 
 #define PRESENT_TIME 0.6
-#define FADE_TIME 1.0
+#define FADE_OUT_TIME 0.6
+#define FADE_IN_TIME 1.0
 
 static void tick_target(az_play_state_t *state, az_target_t *target,
                         double time) {
@@ -47,9 +48,11 @@ static void tick_target(az_play_state_t *state, az_target_t *target,
 
   // Update invisibility:
   if (target->is_invisible) {
-    target->invisibility = fmin(1.0, target->invisibility + time / FADE_TIME);
+    target->invisibility =
+      fmin(1.0, target->invisibility + time / FADE_OUT_TIME);
   } else {
-    target->invisibility = fmax(0.0, target->invisibility - time / FADE_TIME);
+    target->invisibility =
+      fmax(0.0, target->invisibility - time / FADE_IN_TIME);
   }
   target->is_invisible = false;
 
