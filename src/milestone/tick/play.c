@@ -121,7 +121,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
         az_vadd(baddie->position,
                 az_vwithlen(delta, AZ_AVATAR_RADIUS + AZ_BADDIE_RADIUS));
       baddie->stun = 2.5;
-      // TODO: play sound
+      az_play_sound(&state->soundboard, AZ_SND_STUN_BADDIE);
     }
   }
 

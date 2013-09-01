@@ -45,11 +45,14 @@ typedef enum {
   AZ_SND_GAIN_BOMB,
   AZ_SND_GAIN_LIFE,
   AZ_SND_HIT_TANK_SHELL,
+  AZ_SND_HURT_BADDIE,
   AZ_SND_KILL_BASILISK,
+  AZ_SND_KILL_GHOST,
   AZ_SND_KILL_GUARD,
   AZ_SND_KILL_TANK,
   AZ_SND_LOSE_LIFE,
   AZ_SND_NEXT_WAVE,
+  AZ_SND_STUN_BADDIE,
 } az_sound_key_t;
 
 // A soundboard keeps track of what sounds/music we want to play next.  It will

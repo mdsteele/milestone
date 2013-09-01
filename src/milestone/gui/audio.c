@@ -291,10 +291,22 @@ static az_sound_entry_t sound_entries[] = {
     .vibrato_depth = 0.52885, .vibrato_speed = 0.32592,
     .phaser_offset = -0.12909, .phaser_sweep = -0.04236
   },
+  [AZ_SND_HURT_BADDIE] = {
+    .wave_kind = NOISE,
+    .env_sustain = 0.27706, .env_punch = 0.53714, .env_decay = 0.1667,
+    .start_freq = 0.2382611, .freq_slide = 0.1656,
+    .vibrato_depth = 0.55566, .vibrato_speed = 0.19668, .volume_adjust = -0.4
+  },
   [AZ_SND_KILL_BASILISK] = {
     .wave_kind = NOISE,
     .env_sustain = 0.1897, .env_punch = 0.48116, .env_decay = 0.33415,
     .start_freq = 0.4400996, .freq_slide = -0.35086, .repeat_speed = 0.50885
+  },
+  [AZ_SND_KILL_GHOST] = {
+    .wave_kind = NOISE,
+    .env_sustain = 0.20893, .env_punch = 0.3467, .env_decay = 0.57746475935,
+    .start_freq = 0.5672198, .freq_slide = -0.39742, .repeat_speed = 0.71685,
+    .volume_adjust = -0.4
   },
   [AZ_SND_KILL_GUARD] = {
     .wave_kind = NOISE,
@@ -320,6 +332,11 @@ static az_sound_entry_t sound_entries[] = {
     .env_sustain = 0.38416, .env_decay = 0.30604,
     .start_freq = 0.49277, .freq_slide = 0.39104,
     .square_duty = 0.06852, .repeat_speed = 0.47532
+  },
+  [AZ_SND_STUN_BADDIE] = {
+    .wave_kind = NOISE,
+    .env_sustain = 0.0422, .env_decay = 0.19842,
+    .start_freq = 0.51896, .freq_slide = -0.42476
   }
 };
 
