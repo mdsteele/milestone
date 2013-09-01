@@ -68,12 +68,12 @@ static az_vector_t pick_spawn_point(const az_play_state_t *state) {
 }
 
 static void spawn_baddies(az_play_state_t *state, double time) {
-  state->spawn_cooldown -= time;
+  state->spawn_cooldown = fmax(0.0, state->spawn_cooldown - time);
   if (state->spawn_cooldown > 0.0) return;
-  state->spawn_cooldown = 1.9;
-
-  if (state->num_baddies_to_spawn <= 0) return;
-  --state->num_baddies_to_spawn;
+  if (state->baddies_left_to_spawn <= 0) return;
+  --state->baddies_left_to_spawn;
+  state->spawn_cooldown =
+    fmin(1.9, AZ_SECONDS_PER_WAVE / (state->total_baddies_to_spawn + 1));
 
   az_baddie_kind_t kind;
   if (state->current_wave >= 9 && az_random(0, 1) < 0.2) {
@@ -192,7 +192,7 @@ void begin_wave(az_play_state_t *state, bool skip) {
     az_num_waves_at_once_for_wave(state->current_wave) - 1;
   for (int wave = state->max_wave_on_board + 1;
        wave <= new_max_wave_on_board; ++wave) {
-    int num_new_targets = 6 + 2 * sqrt(wave);
+    int num_new_targets = az_imin(30, 7 + 2 * sqrt(wave));
     AZ_ARRAY_LOOP(target, state->targets) {
       if (target->kind != AZ_TARG_NOTHING) continue;
       az_target_kind_t kind = AZ_TARG_NORMAL;
@@ -206,7 +206,8 @@ void begin_wave(az_play_state_t *state, bool skip) {
   state->max_wave_on_board = new_max_wave_on_board;
 
   // Prepare for spawning baddies:
-  state->num_baddies_to_spawn = state->current_wave / 2;
+  state->total_baddies_to_spawn = az_imin(20, state->current_wave / 2);
+  state->baddies_left_to_spawn = state->total_baddies_to_spawn;
   state->spawn_cooldown = 1.2;
 }
 

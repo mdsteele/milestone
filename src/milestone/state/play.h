@@ -67,7 +67,8 @@ typedef struct {
   int max_wave_on_board;
   bool bonus_round;
   double wave_time_remaining; // seconds
-  int num_baddies_to_spawn;
+  int total_baddies_to_spawn;
+  int baddies_left_to_spawn;
   double spawn_cooldown; // seconds
   // Screen flashes:
   double bonus_flash; // 0 to 1
