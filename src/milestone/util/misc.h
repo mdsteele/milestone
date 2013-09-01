@@ -55,7 +55,6 @@ void *_az_alloc(const char *funcname, size_t n, size_t size)
 // Use this macro to indicate that this point in the code should never be
 // reached at runtime.  If it is reached anyway (presumably due to a bug), it
 // will terminate the program with a fatal error.
-// TODO: Consider using __builtin_unreachable or somesuch here for NDEBUG.
 #define AZ_ASSERT_UNREACHABLE() AZ_FATAL("line %d: unreachable\n", __LINE__)
 
 // Use this macro to check at compile time that a (compile-time-constant)

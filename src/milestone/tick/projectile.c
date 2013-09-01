@@ -26,12 +26,30 @@
 #include "milestone/state/baddie.h"
 #include "milestone/state/play.h"
 #include "milestone/util/misc.h"
+#include "milestone/util/random.h"
 
 /*===========================================================================*/
 
-static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie) {
+static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie,
+                        az_vector_t bullet_velocity) {
   assert(baddie->kind != AZ_BAD_NOTHING);
   az_award_points(state, az_baddie_point_value(baddie->kind));
+  for (int i = 0; i < 360; i += 15) {
+    for (int j = 1; j < AZ_BADDIE_RADIUS; j += 1) {
+      az_color_t color;
+      if (baddie->kind == AZ_BAD_GHOST) {
+        color = (az_color_t){128, 128, 128, 255};
+      } else color = (az_color_t){128 + az_randint(0, 127), 128, 0, 255};
+      const az_vector_t position =
+        az_vadd(baddie->position, az_vpolar(j, AZ_DEG2RAD(i)));
+      const az_vector_t velocity =
+        az_vadd(az_vadd(az_vpolar(j * 10, AZ_DEG2RAD(i)),
+                        az_vmul(bullet_velocity, 0.25)),
+                (az_vector_t){az_random(-30, 30), az_random(-20, 20)});
+      const double lifetime = az_random(1.0, 6.0);
+      az_add_particle(state, color, position, velocity, lifetime);
+    }
+  }
   // TODO: particles for dead baddie
   az_sound_key_t sound = AZ_SND_KILL_TANK;
   switch (baddie->kind) {
@@ -45,9 +63,10 @@ static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie) {
   baddie->kind = AZ_BAD_NOTHING;
 }
 
-static void hurt_baddie(az_play_state_t *state, az_baddie_t *baddie) {
+static void hurt_baddie(az_play_state_t *state, az_baddie_t *baddie,
+                        az_vector_t bullet_velocity) {
   --baddie->hitpoints;
-  if (baddie->hitpoints <= 0) kill_baddie(state, baddie);
+  if (baddie->hitpoints <= 0) kill_baddie(state, baddie, bullet_velocity);
   else {
     baddie->flare = 1.0;
     // TODO: play sound
@@ -79,7 +98,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(baddie, state->baddies) {
         if (baddie->kind == AZ_BAD_NOTHING) continue;
         if (az_vwithin(baddie->position, proj->position, AZ_BADDIE_RADIUS)) {
-          hurt_baddie(state, baddie);
+          hurt_baddie(state, baddie, proj->velocity);
           return true;
         }
       }
@@ -102,7 +121,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(baddie, state->baddies) {
         if (baddie->kind == AZ_BAD_NOTHING) continue;
         if (az_vwithin(baddie->position, proj->position, radius)) {
-          kill_baddie(state, baddie);
+          kill_baddie(state, baddie, AZ_VZERO);
         }
       }
     } break;

@@ -169,7 +169,6 @@ void begin_wave(az_play_state_t *state, bool skip) {
     assert(!delayed);
   } else if (delayed) {
     --state->num_lives;
-    // TODO: check for game over
     state->lost_life_flash = 1.0;
     az_play_sound(&state->soundboard, AZ_SND_LOSE_LIFE);
   } else az_play_sound(&state->soundboard, AZ_SND_NEXT_WAVE);

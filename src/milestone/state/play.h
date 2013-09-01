@@ -34,7 +34,7 @@
 /*===========================================================================*/
 
 #define AZ_MAX_NUM_BADDIES 100
-#define AZ_MAX_NUM_PARTICLES 500
+#define AZ_MAX_NUM_PARTICLES 1000
 #define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_MAX_NUM_TARGETS 200
 
