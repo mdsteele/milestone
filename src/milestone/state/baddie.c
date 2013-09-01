@@ -21,10 +21,33 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "milestone/util/misc.h"
 
 /*===========================================================================*/
+
+static int baddie_hitpoints(az_baddie_kind_t kind) {
+  assert(kind != AZ_BAD_NOTHING);
+  switch (kind) {
+    case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_BAD_BASILISK: return 2;
+    case AZ_BAD_GHOST: return 1;
+    case AZ_BAD_GUARD: return 4;
+    case AZ_BAD_TANK: return 1;
+  }
+  AZ_ASSERT_UNREACHABLE();
+}
+
+void az_init_baddie(az_baddie_t *baddie, az_baddie_kind_t kind,
+                    az_vector_t position) {
+  assert(kind != AZ_BAD_NOTHING);
+  memset(baddie, 0, sizeof(*baddie));
+  baddie->kind = kind;
+  baddie->position = position;
+  baddie->cooldown = 1.0;
+  baddie->hitpoints = baddie_hitpoints(kind);
+}
 
 int64_t az_baddie_point_value(az_baddie_kind_t kind) {
   assert(kind != AZ_BAD_NOTHING);

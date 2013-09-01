@@ -49,10 +49,7 @@ void az_add_baddie(az_play_state_t *state, az_baddie_kind_t kind,
                    az_vector_t position) {
   AZ_ARRAY_LOOP(baddie, state->baddies) {
     if (baddie->kind == AZ_BAD_NOTHING) {
-      memset(baddie, 0, sizeof(*baddie));
-      baddie->kind = kind;
-      baddie->position = position;
-      baddie->cooldown = 1.0;
+      az_init_baddie(baddie, kind, position);
       return;
     }
   }

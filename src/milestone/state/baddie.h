@@ -41,9 +41,14 @@ typedef struct {
   az_vector_t velocity;
   double cooldown; // seconds
   double stun; // seconds
+  double flare; // 0 to 1
+  int hitpoints;
 } az_baddie_t;
 
 /*===========================================================================*/
+
+void az_init_baddie(az_baddie_t *baddie, az_baddie_kind_t kind,
+                    az_vector_t position);
 
 int64_t az_baddie_point_value(az_baddie_kind_t kind);
 

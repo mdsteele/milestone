@@ -46,6 +46,8 @@
 
 #define AZ_SECONDS_PER_WAVE 20.0
 
+#define AZ_GHOST_HIDE_RADIUS 200
+
 /*===========================================================================*/
 
 #endif // MILESTONE_CONSTANTS_H_

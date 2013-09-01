@@ -45,6 +45,15 @@ static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie) {
   baddie->kind = AZ_BAD_NOTHING;
 }
 
+static void hurt_baddie(az_play_state_t *state, az_baddie_t *baddie) {
+  --baddie->hitpoints;
+  if (baddie->hitpoints <= 0) kill_baddie(state, baddie);
+  else {
+    baddie->flare = 1.0;
+    // TODO: play sound
+  }
+}
+
 // Return true if projectile should disappear.
 static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
                             double time) {
@@ -70,7 +79,7 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
       AZ_ARRAY_LOOP(baddie, state->baddies) {
         if (baddie->kind == AZ_BAD_NOTHING) continue;
         if (az_vwithin(baddie->position, proj->position, AZ_BADDIE_RADIUS)) {
-          kill_baddie(state, baddie);
+          hurt_baddie(state, baddie);
           return true;
         }
       }

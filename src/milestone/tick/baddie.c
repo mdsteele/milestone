@@ -28,6 +28,8 @@
 
 /*===========================================================================*/
 
+#define FLARE_TIME 1.0
+
 // Return true if baddie should disappear.
 static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
                         double time) {
@@ -39,8 +41,10 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
                      time * (baddie->stun > 0.0 ? 0.5 : 1.0)));
   az_bounce_off_edges(&baddie->position, &baddie->velocity);
 
+  // Cool down timers:
   baddie->cooldown = fmax(0.0, baddie->cooldown - time);
   baddie->stun = fmax(0.0, baddie->stun - time);
+  baddie->flare = fmax(0.0, baddie->flare - time / FLARE_TIME);
 
   // Apply special logic for the baddie kind:
   switch (baddie->kind) {
@@ -141,7 +145,8 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       az_vector_t goal = baddie->position;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind == AZ_TARG_NOTHING) continue;
-        if (az_vwithin(target->position, baddie->position, 150.0)) {
+        if (az_vwithin(target->position, baddie->position,
+                       AZ_GHOST_HIDE_RADIUS)) {
           target->is_invisible = true;
         }
         if (target->presence < 0.5) continue;

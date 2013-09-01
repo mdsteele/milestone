@@ -34,10 +34,11 @@
 static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
   assert(baddie->kind != AZ_BAD_NOTHING);
   if (baddie->stun > 0.0 && az_clock_mod(2, 2, clock)) return;
+  const GLfloat flare = baddie->flare;
   switch (baddie->kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_TANK:
-      glColor3f(0, 0.5, 0.25);
+      glColor3f(flare, 0.5, 0.25);
       glBegin(GL_LINE_LOOP); {
         glVertex2f(3, 10); glVertex2f(-3, 10);
         glVertex2f(-10, 3); glVertex2f(-10, -3);
@@ -46,7 +47,7 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
       } glEnd();
       break;
     case AZ_BAD_GUARD:
-      glColor3f(0.25, 0.5, 1);
+      glColor3f(0.25f + 0.75f * flare, 0.5f, 1.0f - flare);
       glBegin(GL_LINE_LOOP); {
         for (int i = 0; i < 360; i += 30) {
           glVertex2d(AZ_BADDIE_RADIUS * cos(AZ_DEG2RAD(i)),
@@ -55,7 +56,7 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
       } glEnd();
       break;
     case AZ_BAD_BASILISK:
-      glColor3f(0.5, 1.0, 0.25);
+      glColor3f(0.5f + 0.5f * flare, 1.0f - 0.5f * flare, 0.25f);
       glBegin(GL_LINE_LOOP); {
         glVertex2f(3, 10); glVertex2f(-3, 10);
         glVertex2f(-10, 3); glVertex2f(-10, -3);
@@ -65,7 +66,8 @@ static void draw_baddie(const az_baddie_t *baddie, az_clock_t clock) {
       break;
     case AZ_BAD_GHOST:
       glBegin(GL_TRIANGLE_FAN); {
-        glColor4f(1, 1, 1, 0.25); glVertex2f(0, 0); glColor4f(1, 1, 1, 0);
+        glColor4f(1, 1 - flare, 1 - flare, 0.25); glVertex2f(0, 0);
+        glColor4f(1, 1 - flare, 1 - flare, 0);
         for (int i = 0; i <= 360; i += 30) {
           glVertex2d(AZ_BADDIE_RADIUS * cos(AZ_DEG2RAD(i)),
                      AZ_BADDIE_RADIUS * sin(AZ_DEG2RAD(i)));
