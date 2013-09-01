@@ -31,6 +31,11 @@ void az_tick_particles(az_play_state_t *state, double time) {
     particle->age += time;
     if (particle->age >= particle->lifetime) particle->kind = AZ_PAR_NOTHING;
     else az_vpluseq(&particle->position, az_vmul(particle->velocity, time));
+    const az_vector_t position = particle->position;
+    if (position.x <= AZ_BOARD_MIN_X || position.x >= AZ_BOARD_MAX_X ||
+        position.y <= AZ_BOARD_MIN_Y || position.y >= AZ_BOARD_MAX_Y) {
+      particle->kind = AZ_PAR_NOTHING;
+    }
   }
 }
 
