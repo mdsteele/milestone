@@ -26,6 +26,7 @@
 #include "milestone/constants.h"
 #include "milestone/state/gameover.h"
 #include "milestone/util/misc.h"
+#include "milestone/view/cursor.h"
 #include "milestone/view/string.h"
 
 /*===========================================================================*/
@@ -49,16 +50,28 @@ void az_draw_gameover_screen(const az_gameover_state_t *state) {
                  "you finally fell behind.");
   // High score:
   if (state->is_high_score) {
+    glColor3f(0.5, 0.5, 0.5);
     az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 370,
-                   "Please enter your name:");
+                   "Please type your name:");
+    az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
+                   "Press ENTER when done.");
     glColor3f(1, 1, 1);
     az_draw_string(24, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 400,
                    state->name_buffer);
+    glBegin(GL_LINE_LOOP); {
+      glColor3f(1, 0.5, 0);
+      glVertex2f(AZ_SCREEN_WIDTH/2 + 244.5, 393.5);
+      glVertex2f(AZ_SCREEN_WIDTH/2 - 244.5, 393.5);
+      glVertex2f(AZ_SCREEN_WIDTH/2 - 244.5, 428.5);
+      glVertex2f(AZ_SCREEN_WIDTH/2 + 244.5, 428.5);
+    } glEnd();
   } else {
     glColor3f(0.5, 0.5, 0.5);
     az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
                    "Press ENTER to return to title.");
   }
+  // Cursor:
+  az_draw_cursor();
 }
 
 /*===========================================================================*/
