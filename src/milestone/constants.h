@@ -43,6 +43,8 @@
 #define AZ_BOMB_EXPAND_TIME 0.5
 #define AZ_BOMB_MAX_RADIUS 350
 
+#define AZ_SECONDS_PER_WAVE 20.0
+
 /*===========================================================================*/
 
 #endif // MILESTONE_CONSTANTS_H_

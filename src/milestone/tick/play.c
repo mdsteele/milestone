@@ -98,6 +98,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
+    if (target->presence < 0.5) continue;
     if (az_vwithin(target->position, state->avatar_position,
                    AZ_AVATAR_RADIUS + AZ_TARGET_RADIUS)) {
       // Determine the attributes of this target.
@@ -167,6 +168,7 @@ void begin_wave(az_play_state_t *state, bool skip) {
       if (target->kind != AZ_TARG_NOTHING) continue;
       az_target_kind_t kind = AZ_TARG_NORMAL;
       if (az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
+      else if (az_random(0, 1) < 0.5) kind = AZ_TARG_UNPLANNED;
       az_init_target_at_random_position(target, kind, wave);
       --num_new_targets;
       if (num_new_targets <= 0) break;
@@ -191,19 +193,46 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   tick_avatar(state, time);
 
   // If all of this wave's targets are collected, go to the bonus round.
-  int current_wave_targets_remaining = 0;
-  int next_wave_targets_remaining = 0;
+  const int next_wave = state->current_wave + 1;
+  int current_wave_all_targets_remaining = 0;
+  int current_wave_planned_targets_remaining = 0;
+  int next_wave_all_targets_remaining = 0;
+  int next_wave_planned_targets_remaining = 0;
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (target->kind == AZ_TARG_BONUS) continue;
     if (target->wave <= state->current_wave) {
-      ++current_wave_targets_remaining;
-    } else if (target->wave == state->current_wave + 1) {
-      ++next_wave_targets_remaining;
+      ++current_wave_all_targets_remaining;
+      if (target->kind != AZ_TARG_UNPLANNED) {
+        ++current_wave_planned_targets_remaining;
+      }
+    } else if (target->wave == next_wave) {
+      ++next_wave_all_targets_remaining;
+      if (target->kind != AZ_TARG_UNPLANNED) {
+        ++next_wave_planned_targets_remaining;
+      }
     }
   }
-  if (state->current_wave > 0 && current_wave_targets_remaining == 0) {
-    if (next_wave_targets_remaining == 0) {
+  if (current_wave_planned_targets_remaining == 0 &&
+      current_wave_all_targets_remaining > 0) {
+    AZ_ARRAY_LOOP(target, state->targets) {
+      if (target->kind == AZ_TARG_UNPLANNED &&
+          target->wave == state->current_wave) {
+        target->kind = AZ_TARG_NORMAL;
+      }
+    }
+  }
+  if (state->bonus_round && next_wave_planned_targets_remaining == 0 &&
+      next_wave_all_targets_remaining > 0) {
+    AZ_ARRAY_LOOP(target, state->targets) {
+      if (target->kind == AZ_TARG_UNPLANNED &&
+          target->wave == next_wave) {
+        target->kind = AZ_TARG_NORMAL;
+      }
+    }
+  }
+  if (state->current_wave > 0 && current_wave_all_targets_remaining == 0) {
+    if (next_wave_all_targets_remaining == 0) {
       ++state->num_lives;
       state->wave_time_remaining = 0.0;
       state->current_wave += 2;

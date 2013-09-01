@@ -28,10 +28,23 @@
 
 /*===========================================================================*/
 
+#define PRESENT_TIME 0.6
 #define FADE_TIME 1.0
 
 static void tick_target(az_play_state_t *state, az_target_t *target,
                         double time) {
+  assert(target->kind != AZ_TARG_NOTHING);
+
+  // Update presence:
+  if (target->kind == AZ_TARG_UNPLANNED) {
+    if (state->current_wave >= target->wave &&
+        state->wave_time_remaining <= 0.5 * AZ_SECONDS_PER_WAVE) {
+      target->kind = AZ_TARG_NORMAL;
+    }
+  } else {
+    target->presence = fmin(1.0, target->presence + time / PRESENT_TIME);
+  }
+
   // Update invisibility:
   if (target->is_invisible) {
     target->invisibility = fmin(1.0, target->invisibility + time / FADE_TIME);
@@ -50,6 +63,7 @@ static void tick_target(az_play_state_t *state, az_target_t *target,
   target->velocity = az_vwithlen(target->velocity, new_speed);
   AZ_ARRAY_LOOP(other, state->targets) {
     if (other->kind == AZ_TARG_NOTHING) continue;
+    if (other->presence < 0.5) continue;
     if (other == target) continue;
     if (az_vwithin(target->position, other->position, 2 * AZ_TARGET_RADIUS)) {
       az_vpluseq(&target->velocity,

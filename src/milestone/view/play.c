@@ -57,6 +57,7 @@ static void draw_avatar(const az_play_state_t *state) {
 static void draw_targets(const az_play_state_t *state) {
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
+    if (target->presence <= 0.0) continue;
     if (target->invisibility >= 1.0) continue;
     glPushMatrix(); {
       glTranslated(target->position.x, target->position.y, 0);
@@ -64,8 +65,9 @@ static void draw_targets(const az_play_state_t *state) {
       glColor4ub(color.r, color.g, color.b,
                  (1.0 - target->invisibility) * color.a);
       glBegin(GL_LINE_LOOP); {
-        glVertex2f(8, 8); glVertex2f(-8, 8);
-        glVertex2f(-8, -8); glVertex2f(8, -8);
+        const GLfloat side = 8.0 * target->presence;
+        glVertex2f(side, side); glVertex2f(-side, side);
+        glVertex2f(-side, -side); glVertex2f(side, -side);
       } glEnd();
     } glPopMatrix();
   }

@@ -31,6 +31,7 @@ typedef enum {
   AZ_TARG_BONUS,
   AZ_TARG_NORMAL,
   AZ_TARG_REBEL,
+  AZ_TARG_UNPLANNED,
 } az_target_kind_t;
 
 typedef struct {
@@ -38,6 +39,7 @@ typedef struct {
   az_vector_t position;
   az_vector_t velocity;
   int wave;
+  double presence; // 0.0 (absent) to 1.0 (present)
   bool is_invisible; // true if target should be invisible
   double invisibility; // 0.0 (visible) to 1.0 (visible)
 } az_target_t;
