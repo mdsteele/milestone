@@ -23,7 +23,9 @@
 #include <string.h>
 
 #include "milestone/constants.h"
+#include "milestone/state/baddie.h"
 #include "milestone/state/particle.h"
+#include "milestone/state/target.h"
 #include "milestone/util/audio.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/vector.h"
@@ -74,6 +76,16 @@ void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
       proj->kind = kind;
       proj->position = position;
       proj->velocity = velocity;
+      return;
+    }
+  }
+}
+
+void az_add_target(az_play_state_t *state, az_target_kind_t kind,
+                   int wave, az_vector_t position) {
+  AZ_ARRAY_LOOP(target, state->targets) {
+    if (target->kind == AZ_TARG_NOTHING) {
+      az_init_target(target, kind, wave, position);
       return;
     }
   }

@@ -100,6 +100,9 @@ void az_add_particle(az_play_state_t *state, az_color_t color,
 void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
                        az_vector_t position, az_vector_t velocity);
 
+void az_add_target(az_play_state_t *state, az_target_kind_t kind,
+                   int wave, az_vector_t position);
+
 void az_award_points(az_play_state_t *state, int64_t points);
 
 void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity,

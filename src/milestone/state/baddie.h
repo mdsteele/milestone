@@ -30,6 +30,7 @@
 typedef enum {
   AZ_BAD_NOTHING = 0,
   AZ_BAD_BASILISK,
+  AZ_BAD_FAKER,
   AZ_BAD_GHOST,
   AZ_BAD_GUARD,
   AZ_BAD_TANK,

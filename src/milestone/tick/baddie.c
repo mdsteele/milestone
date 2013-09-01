@@ -77,6 +77,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind == AZ_TARG_NOTHING) continue;
         if (target->kind == AZ_TARG_BONUS) continue;
+        if (target->kind == AZ_TARG_FAKE) continue;
         if (target->kind == AZ_TARG_REBEL) continue;
         if (target->presence < 0.5) continue;
         bool alone = true;
@@ -140,6 +141,54 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
         }
       }
     } break;
+    case AZ_BAD_FAKER: {
+      // Move away from the avatar, and away from nearby baddies and targets.
+      const az_vector_t avatar = state->avatar_position;
+      baddie->velocity = AZ_VZERO;
+      if (az_vwithin(avatar, baddie->position, 200.0)) {
+        baddie->velocity =
+          az_vwithlen(az_vsub(baddie->position, avatar), 100.0);
+      }
+      const az_vector_t goal = {
+        (state->avatar_position.x >= AZ_BOARD_CENTER_X ?
+         (AZ_BOARD_CENTER_X + AZ_BOARD_MIN_X) / 2 :
+         (AZ_BOARD_CENTER_X + AZ_BOARD_MAX_X) / 2),
+        (state->avatar_position.y >= AZ_BOARD_CENTER_Y ?
+         (AZ_BOARD_CENTER_Y + AZ_BOARD_MIN_Y) / 2 :
+         (AZ_BOARD_CENTER_Y + AZ_BOARD_MAX_Y) / 2)
+      };
+      if (!az_vwithin(baddie->position, goal, 50.0)) {
+        az_vpluseq(&baddie->velocity,
+                   az_vwithlen(az_vsub(goal, baddie->position), 150.0));
+      }
+      AZ_ARRAY_LOOP(other, state->baddies) {
+        if (other->kind == AZ_BAD_NOTHING) continue;
+        if (other == baddie) continue;
+        if (az_vwithin(baddie->position, other->position, 50.0)) {
+          az_vpluseq(&baddie->velocity, az_vwithlen(
+              az_vsub(baddie->position, other->position), 20.0));
+        }
+      }
+      bool nearby = false;
+      AZ_ARRAY_LOOP(target, state->targets) {
+        if (target->kind == AZ_TARG_NOTHING) continue;
+        if (target->presence < 0.5) continue;
+        if (az_vwithin(target->position, baddie->position,
+                       AZ_BADDIE_RADIUS)) {
+          nearby = true;
+          az_vpluseq(&baddie->velocity,
+                     az_vwithlen(az_vsub(baddie->position,
+                                         target->position), 30.0));
+        }
+      }
+      // Drop fake targets.
+      if (!nearby && baddie->cooldown <= 0.0 && baddie->stun <= 0.0) {
+        az_add_target(state, AZ_TARG_FAKE, state->current_wave,
+                      baddie->position);
+        baddie->cooldown = 3.0;
+        az_play_sound(&state->soundboard, AZ_SND_FAKE_TARGET);
+      }
+    } break;
     case AZ_BAD_GHOST: {
       // Make all nearby targets invisible.  Seek towards the target nearest
       // the avatar that doesn't have a nearby baddie (including this one).
@@ -151,7 +200,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
                        AZ_GHOST_HIDE_RADIUS)) {
           target->is_invisible = true;
         }
-        if (target->presence < 0.5) continue;
+        if (target->presence < 0.5 || target->kind == AZ_TARG_FAKE) continue;
         bool alone = true;
         AZ_ARRAY_LOOP(other, state->baddies) {
           if (other->kind == AZ_BAD_NOTHING) continue;

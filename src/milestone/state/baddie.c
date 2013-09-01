@@ -32,6 +32,7 @@ static int baddie_hitpoints(az_baddie_kind_t kind) {
   switch (kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_BASILISK: return 2;
+    case AZ_BAD_FAKER: return 3;
     case AZ_BAD_GHOST: return 1;
     case AZ_BAD_GUARD: return 4;
     case AZ_BAD_TANK: return 1;
@@ -54,6 +55,7 @@ int64_t az_baddie_point_value(az_baddie_kind_t kind) {
   switch (kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_BASILISK: return 500;
+    case AZ_BAD_FAKER: return 600;
     case AZ_BAD_GHOST: return 450;
     case AZ_BAD_GUARD: return 400;
     case AZ_BAD_TANK: return 300;

@@ -53,6 +53,19 @@ static void draw_target(const az_target_t *target, az_clock_t clock) {
         glVertex2d(radius * cos(theta), radius * sin(theta));
       }
     } glEnd();
+  } else if (target->kind == AZ_TARG_FAKE) {
+    glRotated(120 * sin(AZ_DEG2RAD(2 * az_clock_mod(360, 1, clock))), 0, 0, 1);
+    glBegin(GL_TRIANGLE_STRIP); {
+      const az_color_t color = az_target_color(target);
+      glColor4ub(color.r, color.g, color.b, alpha * color.a);
+      const GLfloat inner = 5.0 * target->presence;
+      const GLfloat outer = 8.0 * target->presence;
+      glVertex2f(outer, outer); glVertex2f(inner, inner);
+      glVertex2f(-outer, outer); glVertex2f(-inner, inner);
+      glVertex2f(-outer, -outer); glVertex2f(-inner, -inner);
+      glVertex2f(outer, -outer); glVertex2f(inner, -inner);
+      glVertex2f(outer, outer); glVertex2f(inner, inner);
+    } glEnd();
   } else {
     glRotated(120 * sin(AZ_DEG2RAD(2 * az_clock_mod(360, 1, clock))), 0, 0, 1);
     glBegin(GL_TRIANGLE_FAN); {

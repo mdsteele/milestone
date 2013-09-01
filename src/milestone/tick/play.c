@@ -71,16 +71,24 @@ static void spawn_baddies(az_play_state_t *state, double time) {
   state->spawn_cooldown = fmax(0.0, state->spawn_cooldown - time);
   if (state->spawn_cooldown > 0.0) return;
   if (state->baddies_left_to_spawn <= 0) return;
+  const bool first = (state->baddies_left_to_spawn ==
+                      state->total_baddies_to_spawn);
   --state->baddies_left_to_spawn;
   state->spawn_cooldown =
     fmin(1.9, AZ_SECONDS_PER_WAVE / (state->total_baddies_to_spawn + 1));
 
   az_baddie_kind_t kind;
-  if (state->current_wave >= 9 && az_random(0, 1) < 0.2) {
+  if ((first && state->current_wave == 10) ||
+      (state->current_wave >= 10 && az_random(0, 1) < 0.15)) {
+    kind = AZ_BAD_FAKER;
+  } else if ((first && state->current_wave == 8) ||
+             (state->current_wave >= 8 && az_random(0, 1) < 0.2)) {
     kind = AZ_BAD_BASILISK;
-  } else if (state->current_wave >= 7 && az_random(0, 1) < 0.2) {
+  } else if ((first && state->current_wave == 6) ||
+             (state->current_wave >= 6 && az_random(0, 1) < 0.2)) {
     kind = AZ_BAD_GHOST;
-  } else if (state->current_wave >= 5 && az_random(0, 1) < 0.4) {
+  } else if ((first && state->current_wave == 4) ||
+             (state->current_wave >= 4 && az_random(0, 1) < 0.4)) {
     kind = AZ_BAD_GUARD;
   } else kind = AZ_BAD_TANK;
 
@@ -128,6 +136,8 @@ static void tick_avatar(az_play_state_t *state, double time) {
       if (target->kind == AZ_TARG_BONUS) {
         value *= cbrt(target->wave + 1);
         elasticity = 2.0;
+      } else if (target->kind == AZ_TARG_FAKE) {
+        value = 0;
       } else if (target->kind == AZ_TARG_REBEL) {
         value *= 3;
       }
@@ -174,6 +184,14 @@ void begin_wave(az_play_state_t *state, bool skip) {
                         az_vpolar(50.0, AZ_DEG2RAD(i + 90)), 1.0);
       }
       target->kind = AZ_TARG_NOTHING;
+    } else if (target->kind == AZ_TARG_FAKE) {
+      for (int i = 0; i < 360; i += 20) {
+        az_add_particle(state, az_target_color(target),
+                        az_vadd(target->position,
+                                az_vpolar(AZ_TARGET_RADIUS, AZ_DEG2RAD(i))),
+                        az_vpolar(-50.0, AZ_DEG2RAD(i)), 1.0);
+      }
+      target->kind = AZ_TARG_NOTHING;
     } else if (target->wave < state->current_wave) {
       target->wave = state->current_wave;
       delayed = true;
@@ -196,7 +214,7 @@ void begin_wave(az_play_state_t *state, bool skip) {
     AZ_ARRAY_LOOP(target, state->targets) {
       if (target->kind != AZ_TARG_NOTHING) continue;
       az_target_kind_t kind = AZ_TARG_NORMAL;
-      if (wave >= 4 && az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
+      if (wave >= 5 && az_random(0, 1) < 0.1) kind = AZ_TARG_REBEL;
       else if (wave >= 9 && az_random(0, 1) < 0.5) kind = AZ_TARG_UNPLANNED;
       az_init_target_at_random_position(target, kind, wave);
       --num_new_targets;
@@ -241,6 +259,7 @@ void az_tick_play_state(az_play_state_t *state, double time) {
   AZ_ARRAY_LOOP(target, state->targets) {
     if (target->kind == AZ_TARG_NOTHING) continue;
     if (target->kind == AZ_TARG_BONUS) continue;
+    if (target->kind == AZ_TARG_FAKE) continue;
     if (target->wave <= state->current_wave) {
       ++current_wave_all_targets_remaining;
       if (target->kind != AZ_TARG_UNPLANNED) {

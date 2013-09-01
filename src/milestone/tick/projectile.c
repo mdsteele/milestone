@@ -55,6 +55,7 @@ static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie,
   switch (baddie->kind) {
     case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
     case AZ_BAD_BASILISK: sound = AZ_SND_KILL_BASILISK; break;
+    case AZ_BAD_FAKER: sound = AZ_SND_KILL_TANK; break; // TODO
     case AZ_BAD_GHOST: sound = AZ_SND_KILL_TANK; break; // TODO
     case AZ_BAD_GUARD: sound = AZ_SND_KILL_GUARD; break;
     case AZ_BAD_TANK: sound = AZ_SND_KILL_TANK; break;
@@ -111,10 +112,14 @@ static bool tick_projectile(az_play_state_t *state, az_projectile_t *proj,
         if (target->kind == AZ_TARG_NOTHING) continue;
         if (target->kind == AZ_TARG_BONUS) continue;
         if (az_vwithin(target->position, proj->position, radius)) {
-          target->kind = AZ_TARG_NORMAL;
-          target->velocity = AZ_VZERO;
-          if (target->wave <= state->current_wave) {
-            target->wave = state->current_wave + 1;
+          if (target->kind == AZ_TARG_FAKE) {
+            target->kind = AZ_TARG_NOTHING;
+          } else {
+            target->kind = AZ_TARG_NORMAL;
+            target->velocity = AZ_VZERO;
+            if (target->wave <= state->current_wave) {
+              target->wave = state->current_wave + 1;
+            }
           }
         }
       }

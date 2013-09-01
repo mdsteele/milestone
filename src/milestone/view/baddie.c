@@ -71,6 +71,16 @@ static void draw_baddie(const az_baddie_t *baddie, az_vector_t avatar_position,
         glVertex2f(-11, -11); glVertex2f(15, 0);
       } glEnd();
       break;
+    case AZ_BAD_FAKER:
+      glRotated(AZ_RAD2DEG(az_vtheta(baddie->velocity)), 0, 0, 1);
+      glBegin(GL_TRIANGLE_FAN); {
+        glColor3f(1, 0, 0.5f - 0.4f * flare); glVertex2f(0, 0);
+        glColor3f(0.5f, 0.1f, 0.25f - 0.1f * flare);
+        glVertex2f(12, 10); glVertex2f(10, 12); glVertex2f(-10, 12);
+        glVertex2f(-12, 10); glVertex2f(-12, -10); glVertex2f(-10, -12);
+        glVertex2f(10, -12); glVertex2f(12, -10); glVertex2f(12, 10);
+      } glEnd();
+      break;
     case AZ_BAD_GHOST:
       glBegin(GL_TRIANGLE_FAN); {
         const az_vector_t center =
