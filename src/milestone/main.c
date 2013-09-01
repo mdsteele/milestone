@@ -94,6 +94,9 @@ static az_mode_t run_title_mode(void) {
     az_event_t event;
     while (az_poll_event(&event)) {
       switch (event.kind) {
+        case AZ_EVENT_KEY_DOWN:
+          if (event.key.id == AZ_KEY_RETURN) return PLAY_MODE;
+          break;
         case AZ_EVENT_MOUSE_DOWN:
           return PLAY_MODE;
         default: break;

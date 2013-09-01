@@ -45,7 +45,7 @@ void az_draw_title_screen(const az_title_state_t *state) {
   glColor3f(1, 0, 0);
   az_draw_string(64, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 50, "Milestone");
   az_draw_string(16, AZ_ALIGN_CENTER, AZ_SCREEN_WIDTH/2, 450,
-                 "Click mouse to start");
+                 "Press ENTER to start");
   // High scores:
   int top = 400;
   AZ_ARRAY_LOOP(entry, state->highscore_list->entries) {
