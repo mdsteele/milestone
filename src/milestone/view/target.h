@@ -17,25 +17,16 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#include "milestone/util/color.h"
+#pragma once
+#ifndef MILESTONE_VIEW_TARGET_H_
+#define MILESTONE_VIEW_TARGET_H_
 
-#include <assert.h>
+#include "milestone/state/play.h"
 
-#include "milestone/util/misc.h"
+/*===========================================================================*/
+
+void az_draw_targets(const az_play_state_t *state);
 
 /*===========================================================================*/
 
-az_color_t az_color_for_wave(int wave) {
-  assert(wave >= 0);
-  switch (wave % 6) {
-    case 0: return (az_color_t){255,   0, 255, 255};
-    case 1: return (az_color_t){255, 255,   0, 255};
-    case 2: return (az_color_t){  0, 255, 255, 255};
-    case 3: return (az_color_t){255,   0,   0, 255};
-    case 4: return (az_color_t){ 64,  64, 255, 255};
-    case 5: return (az_color_t){  0, 192,   0, 255};
-  }
-  AZ_ASSERT_UNREACHABLE();
-}
-
-/*===========================================================================*/
+#endif // MILESTONE_VIEW_TARGET_H_

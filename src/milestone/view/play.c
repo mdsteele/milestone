@@ -33,6 +33,7 @@
 #include "milestone/view/particle.h"
 #include "milestone/view/projectile.h"
 #include "milestone/view/string.h"
+#include "milestone/view/target.h"
 
 /*===========================================================================*/
 
@@ -54,25 +55,6 @@ static void draw_avatar(const az_play_state_t *state) {
   } glPopMatrix();
 }
 
-static void draw_targets(const az_play_state_t *state) {
-  AZ_ARRAY_LOOP(target, state->targets) {
-    if (target->kind == AZ_TARG_NOTHING) continue;
-    if (target->presence <= 0.0) continue;
-    if (target->invisibility >= 1.0) continue;
-    glPushMatrix(); {
-      glTranslated(target->position.x, target->position.y, 0);
-      const az_color_t color = az_target_color(target);
-      glColor4ub(color.r, color.g, color.b,
-                 (1.0 - target->invisibility) * color.a);
-      glBegin(GL_LINE_LOOP); {
-        const GLfloat side = 8.0 * target->presence;
-        glVertex2f(side, side); glVertex2f(-side, side);
-        glVertex2f(-side, -side); glVertex2f(side, -side);
-      } glEnd();
-    } glPopMatrix();
-  }
-}
-
 static void flash_screen(az_color_t color, double alpha) {
   glBegin(GL_TRIANGLE_STRIP); {
     glColor4ub(color.r, color.g, color.b, color.a * alpha);
@@ -83,7 +65,7 @@ static void flash_screen(az_color_t color, double alpha) {
 }
 
 void az_draw_play_screen(const az_play_state_t *state) {
-  draw_targets(state);
+  az_draw_targets(state);
   az_draw_baddies(state);
   az_draw_projectiles(state);
   draw_avatar(state);

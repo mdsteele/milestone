@@ -68,7 +68,7 @@ static void tick_target(az_play_state_t *state, az_target_t *target,
     if (other->kind == AZ_TARG_NOTHING) continue;
     if (other->presence < 0.5) continue;
     if (other == target) continue;
-    if (az_vwithin(target->position, other->position, 2 * AZ_TARGET_RADIUS)) {
+    if (az_vwithin(target->position, other->position, 3 * AZ_TARGET_RADIUS)) {
       az_vpluseq(&target->velocity,
                  az_vwithlen(az_vsub(target->position, other->position),
                              20.0 * time));
