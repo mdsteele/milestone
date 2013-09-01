@@ -17,35 +17,25 @@
 | with Milestone.  If not, see <http://www.gnu.org/licenses/>.                |
 =============================================================================*/
 
-#pragma once
-#ifndef MILESTONE_CONSTANTS_H_
-#define MILESTONE_CONSTANTS_H_
+#include "milestone/state/baddie.h"
+
+#include <assert.h>
+#include <stdint.h>
+
+#include "milestone/util/misc.h"
 
 /*===========================================================================*/
 
-// The dimensions of the screen, in pixels:
-#define AZ_SCREEN_WIDTH  800
-#define AZ_SCREEN_HEIGHT 500
-
-// The bounds of the board:
-#define AZ_BOARD_MIN_X 1
-#define AZ_BOARD_CENTER_X (AZ_SCREEN_WIDTH / 2)
-#define AZ_BOARD_MAX_X (AZ_SCREEN_WIDTH - 1)
-#define AZ_BOARD_MIN_Y 21
-#define AZ_BOARD_CENTER_Y (AZ_SCREEN_HEIGHT / 2)
-#define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
-
-// Hit radii of various objects:
-#define AZ_AVATAR_RADIUS 10
-#define AZ_BADDIE_RADIUS 15
-#define AZ_TARGET_RADIUS 10
-
-#define AZ_POINTS_PER_BOMB 20000
-#define AZ_BOMB_EXPAND_TIME 0.5
-#define AZ_BOMB_MAX_RADIUS 350
-
-#define AZ_SECONDS_PER_WAVE 20.0
+int64_t az_baddie_point_value(az_baddie_kind_t kind) {
+  assert(kind != AZ_BAD_NOTHING);
+  switch (kind) {
+    case AZ_BAD_NOTHING: AZ_ASSERT_UNREACHABLE();
+    case AZ_BAD_BASILISK: return 500;
+    case AZ_BAD_GHOST: return 450;
+    case AZ_BAD_GUARD: return 400;
+    case AZ_BAD_TANK: return 300;
+  }
+  AZ_ASSERT_UNREACHABLE();
+}
 
 /*===========================================================================*/
-
-#endif // MILESTONE_CONSTANTS_H_

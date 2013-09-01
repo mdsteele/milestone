@@ -251,6 +251,11 @@ static az_sound_entry_t sound_entries[] = {
     .repeat_speed = 0.75975, .phaser_offset = -0.13071,
     .phaser_sweep = -0.15447
   },
+  [AZ_SND_GAIN_BOMB] = {
+    .wave_kind = SQUARE,
+    .env_sustain = 0.00246, .env_punch = 0.44127, .env_decay = 0.48796,
+    .start_freq = 0.53315, .arp_mod = 0.55284, .arp_speed = 0.61086
+  },
   [AZ_SND_GAIN_LIFE] = {
     .wave_kind = SQUARE,
     .env_sustain = 0.688236117363, .env_punch = 0.612775921822,

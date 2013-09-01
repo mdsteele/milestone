@@ -23,6 +23,7 @@
 #include <math.h>
 
 #include "milestone/constants.h"
+#include "milestone/state/baddie.h"
 #include "milestone/state/play.h"
 #include "milestone/util/misc.h"
 
@@ -30,6 +31,7 @@
 
 static void kill_baddie(az_play_state_t *state, az_baddie_t *baddie) {
   assert(baddie->kind != AZ_BAD_NOTHING);
+  az_award_points(state, az_baddie_point_value(baddie->kind));
   // TODO: particles for dead baddie
   az_sound_key_t sound = AZ_SND_KILL_TANK;
   switch (baddie->kind) {

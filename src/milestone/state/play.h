@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "milestone/state/baddie.h"
 #include "milestone/state/particle.h"
 #include "milestone/state/target.h"
 #include "milestone/util/audio.h"
@@ -36,22 +37,6 @@
 #define AZ_MAX_NUM_PARTICLES 500
 #define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_MAX_NUM_TARGETS 200
-
-typedef enum {
-  AZ_BAD_NOTHING = 0,
-  AZ_BAD_TANK,
-  AZ_BAD_GUARD,
-  AZ_BAD_BASILISK,
-  AZ_BAD_GHOST,
-} az_baddie_kind_t;
-
-typedef struct {
-  az_baddie_kind_t kind;
-  az_vector_t position;
-  az_vector_t velocity;
-  double cooldown; // seconds
-  double stun; // seconds
-} az_baddie_t;
 
 typedef enum {
   AZ_PROJ_NOTHING = 0,
@@ -113,6 +98,8 @@ void az_add_particle(az_play_state_t *state, az_color_t color,
 
 void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
                        az_vector_t position, az_vector_t velocity);
+
+void az_award_points(az_play_state_t *state, int64_t points);
 
 void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity);
 

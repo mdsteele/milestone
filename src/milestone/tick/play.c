@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "milestone/constants.h"
 #include "milestone/state/play.h"
@@ -130,7 +131,7 @@ static void tick_avatar(az_play_state_t *state, double time) {
       const az_vector_t delta =
         az_vsub(state->avatar_position, target->position);
       target->kind = AZ_TARG_NOTHING;
-      state->score += value;
+      az_award_points(state, value);
       az_vpluseq(&state->avatar_velocity,
                  az_vmul(az_vproj(state->avatar_velocity, delta),
                          -(1.0 + elasticity)));

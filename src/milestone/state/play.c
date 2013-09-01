@@ -19,10 +19,12 @@
 
 #include "milestone/state/play.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "milestone/constants.h"
 #include "milestone/state/particle.h"
+#include "milestone/util/audio.h"
 #include "milestone/util/misc.h"
 #include "milestone/util/vector.h"
 
@@ -77,6 +79,17 @@ void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
       proj->velocity = velocity;
       return;
     }
+  }
+}
+
+void az_award_points(az_play_state_t *state, int64_t points) {
+  assert(points >= 0);
+  const int64_t old_score = state->score;
+  state->score += points;
+  const int64_t new_score = state->score;
+  if (new_score / AZ_POINTS_PER_BOMB > old_score / AZ_POINTS_PER_BOMB) {
+    ++state->num_bombs;
+    az_play_sound(&state->soundboard, AZ_SND_GAIN_BOMB);
   }
 }
 

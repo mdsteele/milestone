@@ -18,34 +18,35 @@
 =============================================================================*/
 
 #pragma once
-#ifndef MILESTONE_CONSTANTS_H_
-#define MILESTONE_CONSTANTS_H_
+#ifndef MILESTONE_STATE_BADDIE_H_
+#define MILESTONE_STATE_BADDIE_H_
+
+#include <stdint.h>
+
+#include "milestone/util/vector.h"
 
 /*===========================================================================*/
 
-// The dimensions of the screen, in pixels:
-#define AZ_SCREEN_WIDTH  800
-#define AZ_SCREEN_HEIGHT 500
+typedef enum {
+  AZ_BAD_NOTHING = 0,
+  AZ_BAD_BASILISK,
+  AZ_BAD_GHOST,
+  AZ_BAD_GUARD,
+  AZ_BAD_TANK,
+} az_baddie_kind_t;
 
-// The bounds of the board:
-#define AZ_BOARD_MIN_X 1
-#define AZ_BOARD_CENTER_X (AZ_SCREEN_WIDTH / 2)
-#define AZ_BOARD_MAX_X (AZ_SCREEN_WIDTH - 1)
-#define AZ_BOARD_MIN_Y 21
-#define AZ_BOARD_CENTER_Y (AZ_SCREEN_HEIGHT / 2)
-#define AZ_BOARD_MAX_Y (AZ_SCREEN_HEIGHT - 21)
-
-// Hit radii of various objects:
-#define AZ_AVATAR_RADIUS 10
-#define AZ_BADDIE_RADIUS 15
-#define AZ_TARGET_RADIUS 10
-
-#define AZ_POINTS_PER_BOMB 20000
-#define AZ_BOMB_EXPAND_TIME 0.5
-#define AZ_BOMB_MAX_RADIUS 350
-
-#define AZ_SECONDS_PER_WAVE 20.0
+typedef struct {
+  az_baddie_kind_t kind;
+  az_vector_t position;
+  az_vector_t velocity;
+  double cooldown; // seconds
+  double stun; // seconds
+} az_baddie_t;
 
 /*===========================================================================*/
 
-#endif // MILESTONE_CONSTANTS_H_
+int64_t az_baddie_point_value(az_baddie_kind_t kind);
+
+/*===========================================================================*/
+
+#endif // MILESTONE_STATE_BADDIE_H_
