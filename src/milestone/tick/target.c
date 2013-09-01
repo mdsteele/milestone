@@ -58,7 +58,7 @@ static void tick_target(az_play_state_t *state, az_target_t *target,
 
   // Update position:
   az_vpluseq(&target->position, az_vmul(target->velocity, time));
-  az_bounce_off_edges(&target->position, &target->velocity);
+  az_bounce_off_edges(&target->position, &target->velocity, AZ_TARGET_RADIUS);
 
   // Update velocity:
   const double old_speed = az_vnorm(target->velocity);

@@ -37,21 +37,34 @@
 
 /*===========================================================================*/
 
+static const az_vector_t CORNER_PX_PY = {
+  AZ_BOARD_MAX_X - AZ_BADDIE_RADIUS, AZ_BOARD_MAX_Y - AZ_BADDIE_RADIUS
+};
+static const az_vector_t CORNER_NX_PY = {
+  AZ_BOARD_MIN_X + AZ_BADDIE_RADIUS, AZ_BOARD_MAX_Y - AZ_BADDIE_RADIUS
+};
+static const az_vector_t CORNER_NX_NY = {
+  AZ_BOARD_MIN_X + AZ_BADDIE_RADIUS, AZ_BOARD_MIN_Y + AZ_BADDIE_RADIUS
+};
+static const az_vector_t CORNER_PX_NY = {
+  AZ_BOARD_MAX_X - AZ_BADDIE_RADIUS, AZ_BOARD_MIN_Y + AZ_BADDIE_RADIUS
+};
+
 static az_vector_t pick_spawn_point(const az_play_state_t *state) {
   const az_vector_t avatar = state->avatar_position;
   int corner = az_randint(1, 3);
   if (!(avatar.x >= AZ_BOARD_CENTER_X && avatar.y >= AZ_BOARD_CENTER_Y)) {
-    if (--corner == 0) return (az_vector_t){AZ_BOARD_MAX_X, AZ_BOARD_MAX_Y};
+    if (--corner == 0) return CORNER_PX_PY;
   }
   if (!(avatar.x < AZ_BOARD_CENTER_X && avatar.y >= AZ_BOARD_CENTER_Y)) {
-    if (--corner == 0) return (az_vector_t){AZ_BOARD_MIN_X, AZ_BOARD_MAX_Y};
+    if (--corner == 0) return CORNER_NX_PY;
   }
   if (!(avatar.x < AZ_BOARD_CENTER_X && avatar.y < AZ_BOARD_CENTER_Y)) {
-    if (--corner == 0) return (az_vector_t){AZ_BOARD_MIN_X, AZ_BOARD_MIN_Y};
+    if (--corner == 0) return CORNER_NX_NY;
   }
   assert(!(avatar.x >= AZ_BOARD_CENTER_X && avatar.y < AZ_BOARD_CENTER_Y));
   assert(corner == 1);
-  return (az_vector_t){AZ_BOARD_MAX_X, AZ_BOARD_MIN_Y};
+  return CORNER_PX_NY;
 }
 
 static void spawn_baddies(az_play_state_t *state, double time) {
@@ -100,7 +113,8 @@ static void tick_avatar(az_play_state_t *state, double time) {
     }
   }
 
-  az_bounce_off_edges(&state->avatar_position, &state->avatar_velocity);
+  az_bounce_off_edges(&state->avatar_position, &state->avatar_velocity,
+                      AZ_AVATAR_RADIUS);
 
   // Collect targets:
   AZ_ARRAY_LOOP(target, state->targets) {

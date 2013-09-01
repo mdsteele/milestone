@@ -92,21 +92,22 @@ void az_award_points(az_play_state_t *state, int64_t points) {
 
 #define EDGE_ELASTICITY 0.5
 
-void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity) {
-  if (position->x < AZ_BOARD_MIN_X) {
-    position->x = AZ_BOARD_MIN_X;
+void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity,
+                         double radius) {
+  if (position->x < AZ_BOARD_MIN_X + radius) {
+    position->x = AZ_BOARD_MIN_X + radius;
     if (velocity->x < 0) velocity->x = -EDGE_ELASTICITY * velocity->x;
   }
-  if (position->x > AZ_BOARD_MAX_X) {
-    position->x = AZ_BOARD_MAX_X;
+  if (position->x > AZ_BOARD_MAX_X - radius) {
+    position->x = AZ_BOARD_MAX_X - radius;
     if (velocity->x > 0) velocity->x = -EDGE_ELASTICITY * velocity->x;
   }
-  if (position->y < AZ_BOARD_MIN_Y) {
-    position->y = AZ_BOARD_MIN_Y;
+  if (position->y < AZ_BOARD_MIN_Y + radius) {
+    position->y = AZ_BOARD_MIN_Y + radius;
     if (velocity->y < 0) velocity->y = -EDGE_ELASTICITY * velocity->y;
   }
-  if (position->y > AZ_BOARD_MAX_Y) {
-    position->y = AZ_BOARD_MAX_Y;
+  if (position->y > AZ_BOARD_MAX_Y - radius) {
+    position->y = AZ_BOARD_MAX_Y - radius;
     if (velocity->y > 0) velocity->y = -EDGE_ELASTICITY * velocity->y;
   }
 }

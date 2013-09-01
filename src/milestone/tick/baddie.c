@@ -39,7 +39,7 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
   az_vpluseq(&baddie->position,
              az_vmul(baddie->velocity,
                      time * (baddie->stun > 0.0 ? 0.5 : 1.0)));
-  az_bounce_off_edges(&baddie->position, &baddie->velocity);
+  az_bounce_off_edges(&baddie->position, &baddie->velocity, AZ_BADDIE_RADIUS);
 
   // Cool down timers:
   baddie->cooldown = fmax(0.0, baddie->cooldown - time);
@@ -76,6 +76,8 @@ static bool tick_baddie(az_play_state_t *state, az_baddie_t *baddie,
       az_vector_t goal = baddie->position;
       AZ_ARRAY_LOOP(target, state->targets) {
         if (target->kind == AZ_TARG_NOTHING) continue;
+        if (target->kind == AZ_TARG_BONUS) continue;
+        if (target->kind == AZ_TARG_REBEL) continue;
         if (target->presence < 0.5) continue;
         bool alone = true;
         AZ_ARRAY_LOOP(other, state->baddies) {

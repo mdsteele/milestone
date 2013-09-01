@@ -34,7 +34,7 @@
 /*===========================================================================*/
 
 #define AZ_MAX_NUM_BADDIES 100
-#define AZ_MAX_NUM_PARTICLES 1000
+#define AZ_MAX_NUM_PARTICLES 2000
 #define AZ_MAX_NUM_PROJECTILES 200
 #define AZ_MAX_NUM_TARGETS 200
 
@@ -101,7 +101,8 @@ void az_add_projectile(az_play_state_t *state, az_proj_kind_t kind,
 
 void az_award_points(az_play_state_t *state, int64_t points);
 
-void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity);
+void az_bounce_off_edges(az_vector_t *position, az_vector_t *velocity,
+                         double radius);
 
 /*===========================================================================*/
 
