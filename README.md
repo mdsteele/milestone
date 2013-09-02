@@ -1,10 +1,11 @@
 Milestone
 =========
 
-A simple arcade game, originally made in 36 hours using SDL, OpenGL, and using
-some utility code taken from my [Azimuth](https://github.com/mdsteele/azimuth)
-project.  I may well work on it a bit more in the future, but you can see where
-it was at the 36-hour mark by checking out the
+A simple arcade game, originally made in 36 hours using SDL, OpenGL,
+[sfxr](http://www.drpetter.se/project_sfxr.html), and some utility code taken
+from my [Azimuth](https://github.com/mdsteele/azimuth) project.  I may well
+work on it a bit more in the future, but you can see where it was at the
+36-hour mark by checking out the
 [hour36](https://github.com/mdsteele/milestone/releases/tag/hour36) tag.
 
 The game plays a bit like [Crystal
@@ -21,6 +22,8 @@ targets from you, or otherwise make your job harder.  Fortunately, you can stun
 or kill enemies by ramming into them or shooting them -- but again, this
 distracts you from the task of collecting all the targets within the time
 limit.
+
+--------
 
 This codebase is licensed under the GNU GPL, version 3.  This codebase is free
 software: you can redistribute it and/or modify it under the terms of the GNU
