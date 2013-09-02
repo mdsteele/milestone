@@ -48,6 +48,12 @@ void *_az_alloc(const char *funcname, size_t n, size_t size) {
   return ptr;
 }
 
+char *az_strdup(const char *string) {
+  if (string == NULL) return NULL;
+  char *duplicate = AZ_ALLOC(strlen(string) + 1, char);
+  return strcpy(duplicate, string);
+}
+
 AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a) == 1);
 AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b) == 2);
 AZ_STATIC_ASSERT(AZ_COUNT_ARGS(a,b,c) == 3);

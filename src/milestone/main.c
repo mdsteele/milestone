@@ -34,6 +34,7 @@
 #include "milestone/system/resource.h"
 #include "milestone/tick/play.h"
 #include "milestone/tick/title.h"
+#include "milestone/util/misc.h"
 #include "milestone/util/random.h"
 #include "milestone/view/gameover.h"
 #include "milestone/view/play.h"
@@ -191,8 +192,9 @@ static az_mode_t run_gameover_mode(void) {
   }
 
   if (entry != NULL) {
-    entry->name = strdup(gameover_state.cursor == 0 ? "Mysterious Stranger" :
-                         gameover_state.name_buffer);
+    entry->name = az_strdup(gameover_state.cursor == 0 ?
+                            "Mysterious Stranger" :
+                            gameover_state.name_buffer);
     save_highscore_list();
   }
   last_game = entry;

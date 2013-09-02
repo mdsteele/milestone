@@ -44,7 +44,7 @@ static bool try_read_highscore_list(
     if (score < last_score) return false;
     entry->wave = wave;
     entry->score = score;
-    if (wave > 0) entry->name = strdup(name);
+    if (wave > 0) entry->name = az_strdup(name);
     last_score = score;
   }
   return true;

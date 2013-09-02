@@ -52,6 +52,10 @@ void _az_fatal(const char *funcname, const char *format, ...)
 void *_az_alloc(const char *funcname, size_t n, size_t size)
   __attribute__((__malloc__));
 
+// Duplicate a string, using AZ_ALLOC for allocation.  Returns NULL if passed
+// NULL.
+char *az_strdup(const char *string);
+
 // Use this macro to indicate that this point in the code should never be
 // reached at runtime.  If it is reached anyway (presumably due to a bug), it
 // will terminate the program with a fatal error.

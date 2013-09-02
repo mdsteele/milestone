@@ -50,7 +50,7 @@ ifeq "$(OS_NAME)" "Darwin"
   SYSTEM_OBJFILES = $(OBJDIR)/macosx/SDLMain.o \
                     $(OBJDIR)/milestone/system/resource_mac.o
 else
-  MAIN_LIBFLAGS = -lGL -lSDL -lSDL_mixer
+  MAIN_LIBFLAGS = -lm -lGL -lSDL -lSDL_mixer
   SYSTEM_OBJFILES = $(OBJDIR)/milestone/system/resource_linux.o
 endif
 
